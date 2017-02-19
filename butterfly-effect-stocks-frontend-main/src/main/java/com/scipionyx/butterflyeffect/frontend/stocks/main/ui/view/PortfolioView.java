@@ -80,7 +80,7 @@ public class PortfolioView extends AbstractView {
 		grid.setSizeFull();
 		// grid.setWidth(100, Unit.PERCENTAGE);
 		grid.addColumn("Id", Long.class).setHidden(true);
-		grid.addColumn("Code", String.class);
+		grid.addColumn("Symbol", String.class);
 		grid.addColumn("Name", String.class);
 		grid.addColumn("Quantity", Long.class);
 		grid.addColumn("Price", Double.class).setRenderer(new NumberRenderer(NumberFormat.getCurrencyInstance()));
@@ -146,7 +146,7 @@ public class PortfolioView extends AbstractView {
 		grid.getContainerDataSource().removeAllItems();
 		if (portfolio.getPositions() != null) {
 			for (com.scipionyx.butterflyeffect.api.stocks.model.Position position : portfolio.getPositions()) {
-				grid.addRow(position.getId(), position.getStock().getCode(), position.getStock().getName(),
+				grid.addRow(position.getId(), position.getStock().getSymbol(), position.getStock().getName(),
 						position.getQuantity(), position.getPrice(), position.getBuy(), position.getSell(), 0d, 0d, 0d,
 						Status.MONITORING);
 			}

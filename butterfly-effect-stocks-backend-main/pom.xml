@@ -4,7 +4,6 @@
 
 	<artifactId>butterfly-effect-stocks-backend-main</artifactId>
 
-	<groupId>butterfly-effect-stocks</groupId>
 
 	<parent>
 		<groupId>com.scipionyx</groupId>
@@ -13,12 +12,23 @@
 		<relativePath>../butterfly-effect-stocks-backend-parent</relativePath>
 	</parent>
 
-	<packaging>pom</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.scipionyx</groupId>
+			<artifactId>
+				butterfly-effect-backend-jobmanagement
+			</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>butterfly-effect-stocks-api-main</groupId>
+			<artifactId>butterfly-effect-stocks-api-main</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
