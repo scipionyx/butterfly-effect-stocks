@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
-import com.scipionyx.butterflyeffect.api.infrastructure.services.IHasRepository;
 import com.scipionyx.butterflyeffect.api.infrastructure.services.IService;
+import com.scipionyx.butterflyeffect.api.infrastructure.services.server.IHasRepository;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
 
 /**
@@ -16,6 +16,11 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
  */
 @Component
 public class StocksService implements IService, IHasRepository<Stock> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Autowired(required = true)
 	private StocksRepository repository;

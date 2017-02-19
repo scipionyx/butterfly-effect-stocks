@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestClientException;
+
 import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.model.Position;
 import com.scipionyx.butterflyeffect.api.stocks.model.Status;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
+import com.scipionyx.butterflyeffect.api.stocks.services.StocksClientService;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.AbstractView;
 import com.scipionyx.butterflyeffect.ui.view.MenuConfiguration;
 import com.scipionyx.butterflyeffect.ui.view.ViewConfiguration;
@@ -62,6 +66,12 @@ public class PortfolioView extends AbstractView {
 	private Grid grid;
 
 	private Portfolio portfolio;
+
+	/**
+	 * 
+	 */
+	@Autowired(required = true)
+	private StocksClientService stockService;
 
 	/**
 	 * 
@@ -169,12 +179,18 @@ public class PortfolioView extends AbstractView {
 	 */
 	private void addStock() {
 
-		Position position = new Position();
+		try {
 
-		StockWindow stockWindow = new StockWindow(position);
-		stockWindow.build();
-		stockWindow.center();
-		getUI().addWindow(stockWindow);
+			Position position = new Position();
+			StockWindow stockWindow = new StockWindow(position);
+			stockWindow.build();
+			stockWindow.center();
+			getUI().addWindow(stockWindow);
+
+		} catch (Exception e) {
+			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
 
 	}
 
@@ -203,8 +219,10 @@ public class PortfolioView extends AbstractView {
 		/**
 		 * 
 		 * @return
+		 * @throws Exception
+		 * @throws RestClientException
 		 */
-		void build() {
+		void build() throws RestClientException, Exception {
 
 			//
 			this.setWidth(350, Unit.PIXELS);
@@ -219,8 +237,7 @@ public class PortfolioView extends AbstractView {
 
 			//
 			List<Stock> stocks = new ArrayList<>();
-			stocks.add(new Stock("EPAY", "Bottomline Technologies"));
-			stocks.add(new Stock("T", "AT&T"));
+			stockService.findAll().forEach(stocks::add);
 
 			ComboBox stockComboBox = new ComboBox("Stock", stocks);
 			binder.bind(stockComboBox, "stock");

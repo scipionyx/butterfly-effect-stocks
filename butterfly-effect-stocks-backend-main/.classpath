@@ -27,5 +27,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/butterfly-effect-stocks-api-main"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
