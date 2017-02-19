@@ -8,6 +8,7 @@
 		<groupId>com.scipionyx</groupId>
 		<artifactId>butterfly-effect-stocks</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../butterfly-effect-stocks</relativePath>
 	</parent>
 
 	<packaging>pom</packaging>
