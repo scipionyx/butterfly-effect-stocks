@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 
 //
-@EnableDiscoveryClient()
+@EnableDiscoveryClient
 
 //
 @EnableSpringConfigured

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.web.client.RestClientException;
 
 import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
@@ -47,12 +48,16 @@ import com.vaadin.ui.themes.ValoTheme;
  * @author rmendes
  *
  */
+@UIScope
 @SpringComponent(value = PortfolioView.VIEW_NAME)
 @SpringView(name = PortfolioView.VIEW_NAME)
-@UIScope
+
 //
 @ViewConfiguration(title = "Portfolio")
 @MenuConfiguration(position = com.scipionyx.butterflyeffect.ui.view.MenuConfiguration.Position.TOP_MAIN, label = "Portfolio", group = "", order = 1)
+
+//
+@Configurable(value = PortfolioView.VIEW_NAME)
 public class PortfolioView extends AbstractView {
 
 	/**

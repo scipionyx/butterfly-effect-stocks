@@ -3,5 +3,7 @@
 	<weaver>
 		<include
 			within="com.scipionyx.butterflyeffect.frontend.configuration.ui.view.*" />
+		<include
+			within="com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.*" />
 	</weaver>
 </aspectj>
