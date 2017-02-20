@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs;
+package com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.common;
 
 import javax.persistence.EntityManagerFactory;
 

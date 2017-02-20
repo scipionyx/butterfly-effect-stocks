@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs;
+package com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.loadstocks;
 
 import java.beans.PropertyEditor;
 import java.net.MalformedURLException;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.AbstractJobDefinition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
+import com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.common.SimpleLookupItemProcessor;
 
 /**
  * 
@@ -35,7 +36,7 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
  *         http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=AMEX&render=download
  */
 @Component
-@Definition(description = "This job will load all the symbols from the internet for a specific market", instuctions = "provide the name of the markert", category = "Stocks", service = "LoadStocksJob")
+@Definition(name = "LoadStocks", description = "This job will load all the symbols from the internet for a specific market", instuctions = "provide the name of the markert", category = "Stocks", service = "LoadStocksJob", restController = LoadStocksController.class)
 public class LoadStocksJob extends AbstractJobDefinition {
 
 	/**
@@ -78,7 +79,7 @@ public class LoadStocksJob extends AbstractJobDefinition {
 	 */
 	public Step step1() throws MalformedURLException {
 		return stepBuilderFactory. //
-				get("step1").<Stock, Stock>chunk(10).//
+				get("step1").<Stock, Stock>chunk(1000).//
 				reader(reader()).//
 				processor(getProcessor()).//
 				writer(itemWriter).//

@@ -66,6 +66,9 @@ public class Stock implements Serializable {
 	@Column(name = "SUMMARY")
 	private String summaryQuote;
 
+	@Column(name = "EXCHANGE")
+	private Exchange exchange;
+
 	public Stock() {
 	}
 
@@ -156,6 +159,14 @@ public class Stock implements Serializable {
 
 	public void setSummaryQuote(String summaryQuote) {
 		this.summaryQuote = summaryQuote;
+	}
+
+	public Exchange getExchange() {
+		return exchange;
+	}
+
+	public void setExchange(Exchange exchange) {
+		this.exchange = exchange;
 	}
 
 	@Override

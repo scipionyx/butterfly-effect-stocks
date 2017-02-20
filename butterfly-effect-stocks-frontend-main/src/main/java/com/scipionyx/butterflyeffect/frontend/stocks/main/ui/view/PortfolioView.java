@@ -143,7 +143,7 @@ public class PortfolioView extends AbstractView {
 	 * 
 	 */
 	private void managePortifolio() {
-		tabSheet.addTab(new VerticalLayout(), "New Portfolio");
+		tabSheet.addTab(new VerticalLayout(), "New Portfolio").setClosable(true);
 	}
 
 	/**
@@ -241,8 +241,7 @@ public class PortfolioView extends AbstractView {
 			binder.setBuffered(true);
 
 			//
-			List<Stock> stocks = new ArrayList<>();
-			stockService.findAll().forEach(stocks::add);
+			List<Stock> stocks = stockService.findAll();
 
 			ComboBox stockComboBox = new ComboBox("Stock", stocks);
 			binder.bind(stockComboBox, "stock");
