@@ -1,11 +1,10 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.loadstocks;
+package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.loadstocks;
 
 import java.beans.PropertyEditor;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
 import org.springframework.batch.core.Job;
@@ -19,13 +18,15 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Component;
 
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.AbstractJobDefinition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition;
+import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
-import com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.common.SimpleLookupItemProcessor;
+import com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common.SimpleLookupItemProcessor;
 
 /**
  * 
@@ -35,7 +36,7 @@ import com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.common.Si
  *         http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NYSE&render=download
  *         http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=AMEX&render=download
  */
-@Component
+@Configuration
 @Definition(name = "LoadStocks", description = "This job will load all the symbols from the internet for a specific market", instuctions = "provide the name of the markert", category = "Stocks", service = "LoadStocksJob", restController = LoadStocksController.class)
 public class LoadStocksJob extends AbstractJobDefinition {
 
@@ -50,24 +51,21 @@ public class LoadStocksJob extends AbstractJobDefinition {
 	@Autowired
 	private EntityManager entityManager;
 
-	private SimpleLookupItemProcessor<Stock> processor;
-
-	@PostConstruct
-	public void init() {
-		processor = new SimpleLookupItemProcessor<Stock>(entityManager);
-		processor.addLookupExpressions("from Stock a where a.symbol = :symbol", "symbol=symbol");
-	}
-
 	/**
 	 * 
 	 * @return
 	 * @throws MalformedURLException
 	 */
+	@Bean("jobStockImportSymbols")
 	public Job importUserJob() throws MalformedURLException {
+		Exchange exchange = Exchange.NASDAQ;
+		if (exchange == null) {
+			exchange = Exchange.NASDAQ;
+		}
 		return jobBuilderFactory. //
-				get("importUserJob"). //
+				get("STOCK_IMPORT_SYMBOL"). //
 				incrementer(new RunIdIncrementer()). //
-				flow(step1()). //
+				flow(step1(exchange)). //
 				end(). //
 				build();
 	}
@@ -77,10 +75,12 @@ public class LoadStocksJob extends AbstractJobDefinition {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public Step step1() throws MalformedURLException {
+	// @Bean("jobStockImportSymbols_Step1")
+	@Bean()
+	public Step step1(Exchange exchange) throws MalformedURLException {
 		return stepBuilderFactory. //
 				get("step1").<Stock, Stock>chunk(1000).//
-				reader(reader()).//
+				reader(reader(exchange)).//
 				processor(getProcessor()).//
 				writer(itemWriter).//
 				build();
@@ -91,7 +91,8 @@ public class LoadStocksJob extends AbstractJobDefinition {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public FlatFileItemReader<Stock> reader() throws MalformedURLException {
+	@Bean
+	public FlatFileItemReader<Stock> reader(Exchange exchange) throws MalformedURLException {
 
 		// Defining the Mapper
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer() {
@@ -134,8 +135,8 @@ public class LoadStocksJob extends AbstractJobDefinition {
 
 		// Defining the reader
 		FlatFileItemReader<Stock> reader = new FlatFileItemReader<Stock>();
-		reader.setResource(new UrlResource(
-				"http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NASDAQ&render=download"));
+		reader.setResource(new UrlResource("http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange="
+				+ exchange + "&render=download"));
 		reader.setLinesToSkip(1);
 		reader.setLineMapper(mapper);
 
@@ -147,11 +148,17 @@ public class LoadStocksJob extends AbstractJobDefinition {
 	 */
 	@Override
 	public Job execute(Object... args) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	@Bean
 	public ItemProcessor<Stock, Stock> getProcessor() {
+		SimpleLookupItemProcessor<Stock> processor = new SimpleLookupItemProcessor<Stock>(entityManager);
+		processor.addLookupExpressions("from Stock a where a.symbol = :symbol", "symbol=symbol");
 		return processor;
 	}
 

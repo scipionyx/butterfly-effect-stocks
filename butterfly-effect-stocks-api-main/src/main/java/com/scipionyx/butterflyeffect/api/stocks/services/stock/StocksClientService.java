@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.api.stocks.services;
+package com.scipionyx.butterflyeffect.api.stocks.services.stock;
 
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
  */
 @Component
 @RESTService(module = "stocks", subModule = "stock", version = "v1.0")
-public class StocksClientService extends AbstractRESTClientWithCrudService<Stock> implements IStocksService {
+public class StocksClientService extends AbstractRESTClientWithCrudService<Stock> {
 
 	/**
 	 * 

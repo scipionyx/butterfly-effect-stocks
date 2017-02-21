@@ -3,13 +3,23 @@ package com.scipionyx.butterflyeffect.api.stocks.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 /**
  * 
- * @author rmendes
+ * @author Renato Mendes
  *
  */
+@Entity
+@Table(name = "S_STOCKS_POSITION")
 public class Position implements Serializable {
 
 	/**
@@ -17,19 +27,30 @@ public class Position implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	@Column(name = "ID")
 	private long id;
 
 	@NotNull
+	@Column(name = "STOCK", nullable = false)
 	private Stock stock;
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "DATE_BUY", nullable = true)
 	private Date buy;
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "DATE_SELL", nullable = true)
 	private Date sell;
 
+	@Column(name = "PRICE")
 	private Double price;
 
+	@Column(name = "QUANTITY")
 	private Long quantity;
 
+	@Column(name = "STATUS")
 	private Status status;
 
 	/**
@@ -38,7 +59,7 @@ public class Position implements Serializable {
 	 */
 	public Position() {
 	}
-	
+
 	/**
 	 * 
 	 * @param stock

@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.services.stocks;
+package com.scipionyx.butterflyeffect.api.stocks.services.stock;
 
 import org.springframework.data.repository.CrudRepository;
 
@@ -11,6 +11,6 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
  * @author Renato Mendes
  *
  */
-public interface StocksRepository extends CrudRepository<Stock, Long> {
+public interface StocksCrudRepository extends CrudRepository<Stock, Long> {
 
 }

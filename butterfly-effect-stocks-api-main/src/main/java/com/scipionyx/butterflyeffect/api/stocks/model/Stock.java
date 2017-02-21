@@ -31,7 +31,7 @@ public class Stock implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column(name = "ID")
-	private long id;
+	private Long id;
 
 	@NotNull
 	@NotBlank

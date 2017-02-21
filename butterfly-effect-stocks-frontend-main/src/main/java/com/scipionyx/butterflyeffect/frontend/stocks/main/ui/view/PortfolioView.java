@@ -8,13 +8,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.client.RestClientException;
 
 import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.model.Position;
 import com.scipionyx.butterflyeffect.api.stocks.model.Status;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
-import com.scipionyx.butterflyeffect.api.stocks.services.StocksClientService;
+import com.scipionyx.butterflyeffect.api.stocks.services.stock.StocksClientService;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.AbstractView;
 import com.scipionyx.butterflyeffect.ui.view.MenuConfiguration;
 import com.scipionyx.butterflyeffect.ui.view.ViewConfiguration;
@@ -175,7 +177,8 @@ public class PortfolioView extends AbstractView {
 	private Portfolio loadPortfolio() {
 		Portfolio portfolio_ = new Portfolio();
 		portfolio_.setPositions(new ArrayList<>());
-		portfolio_.setUser("CURRENT USER"); // TODO
+		portfolio_
+				.setUser(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 		return portfolio_;
 	}
 
@@ -241,7 +244,7 @@ public class PortfolioView extends AbstractView {
 			binder.setBuffered(true);
 
 			//
-			List<Stock> stocks = stockService.findAll();
+			List<Stock> stocks = stockService.findAllOrderBy("symbol");
 
 			ComboBox stockComboBox = new ComboBox("Stock", stocks);
 			binder.bind(stockComboBox, "stock");

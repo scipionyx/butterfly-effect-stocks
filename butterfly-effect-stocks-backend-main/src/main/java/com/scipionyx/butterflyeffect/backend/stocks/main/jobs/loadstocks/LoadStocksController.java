@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.services.jobs.loadstocks;
+package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.loadstocks;
 
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
