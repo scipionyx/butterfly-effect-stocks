@@ -1,10 +1,10 @@
-package com.scipionyx.butterflyeffect.api.stocks.services.portfolio;
+package com.scipionyx.butterflyeffect.frontend.stocks.main.services;
 
 import org.springframework.stereotype.Component;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.RESTService;
 import com.scipionyx.butterflyeffect.api.infrastructure.services.client.AbstractRESTClientWithCrudService;
-import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
+import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
 
 /**
  * 
@@ -15,7 +15,7 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
  */
 @Component
 @RESTService(module = "stocks", subModule = "stock", version = "v1.0")
-public class PortfolioClientService extends AbstractRESTClientWithCrudService<Portfolio> {
+public class StocksClientService extends AbstractRESTClientWithCrudService<Stock> {
 
 	/**
 	 * 

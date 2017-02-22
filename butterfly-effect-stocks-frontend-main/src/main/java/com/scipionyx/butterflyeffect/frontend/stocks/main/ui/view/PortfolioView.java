@@ -16,8 +16,9 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.model.Position;
 import com.scipionyx.butterflyeffect.api.stocks.model.Status;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
-import com.scipionyx.butterflyeffect.api.stocks.services.stock.StocksClientService;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.AbstractView;
+import com.scipionyx.butterflyeffect.frontend.stocks.main.services.PortfolioClientService;
+import com.scipionyx.butterflyeffect.frontend.stocks.main.services.StocksClientService;
 import com.scipionyx.butterflyeffect.ui.view.MenuConfiguration;
 import com.scipionyx.butterflyeffect.ui.view.ViewConfiguration;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
@@ -79,6 +80,9 @@ public class PortfolioView extends AbstractView {
 	 */
 	@Autowired(required = true)
 	private StocksClientService stockService;
+
+	@Autowired(required = true)
+	private PortfolioClientService portfolioClientService;
 
 	/**
 	 * 
@@ -287,6 +291,7 @@ public class PortfolioView extends AbstractView {
 			try {
 				binder.commit();
 				portfolio.getPositions().add(position);
+				portfolioClientService.save(portfolio);
 				refresh();
 				close();
 			} catch (CommitException e) {
