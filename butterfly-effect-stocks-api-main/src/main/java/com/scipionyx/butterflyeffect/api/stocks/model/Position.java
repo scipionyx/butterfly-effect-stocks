@@ -3,11 +3,14 @@ package com.scipionyx.butterflyeffect.api.stocks.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -33,7 +36,7 @@ public class Position implements Serializable {
 	private long id;
 
 	@NotNull
-	@Column(name = "STOCK", nullable = false)
+	@ManyToOne(cascade = CascadeType.DETACH, optional = false, fetch = FetchType.LAZY, targetEntity = Stock.class)
 	private Stock stock;
 
 	@Temporal(TemporalType.DATE)
