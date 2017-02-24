@@ -3,6 +3,7 @@ package com.scipionyx.butterflyeffect.api.stocks.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -23,6 +25,7 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "S_STOCKS_POSITION")
+@Cacheable(value = true)
 public class Position implements Serializable {
 
 	/**
@@ -36,7 +39,7 @@ public class Position implements Serializable {
 	private long id;
 
 	@NotNull
-	@ManyToOne(cascade = CascadeType.DETACH, optional = false, fetch = FetchType.LAZY, targetEntity = Stock.class)
+	@ManyToOne(cascade = CascadeType.DETACH, optional = false, fetch = FetchType.EAGER, targetEntity = Stock.class)
 	private Stock stock;
 
 	@Temporal(TemporalType.DATE)
@@ -55,6 +58,18 @@ public class Position implements Serializable {
 
 	@Column(name = "STATUS")
 	private Status status;
+
+	@Transient()
+	private Date totalInvestiment;
+
+	@Transient()
+	private Date update;
+
+	@Transient()
+	private Double currentPrice;
+
+	@Transient()
+	private Double currentValue;
 
 	/**
 	 * 
@@ -125,6 +140,66 @@ public class Position implements Serializable {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	/**
+	 * @return the totalInvestiment
+	 */
+	public Date getTotalInvestiment() {
+		return totalInvestiment;
+	}
+
+	/**
+	 * @param totalInvestiment
+	 *            the totalInvestiment to set
+	 */
+	public void setTotalInvestiment(Date totalInvestiment) {
+		this.totalInvestiment = totalInvestiment;
+	}
+
+	/**
+	 * @return the update
+	 */
+	public Date getUpdate() {
+		return update;
+	}
+
+	/**
+	 * @param update
+	 *            the update to set
+	 */
+	public void setUpdate(Date update) {
+		this.update = update;
+	}
+
+	/**
+	 * @return the currentPrice
+	 */
+	public Double getCurrentPrice() {
+		return currentPrice;
+	}
+
+	/**
+	 * @param currentPrice
+	 *            the currentPrice to set
+	 */
+	public void setCurrentPrice(Double currentPrice) {
+		this.currentPrice = currentPrice;
+	}
+
+	/**
+	 * @return the currentValue
+	 */
+	public Double getCurrentValue() {
+		return currentValue;
+	}
+
+	/**
+	 * @param currentValue
+	 *            the currentValue to set
+	 */
+	public void setCurrentValue(Double currentValue) {
+		this.currentValue = currentValue;
 	}
 
 }

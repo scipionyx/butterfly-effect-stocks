@@ -2,6 +2,7 @@ package com.scipionyx.butterflyeffect.api.stocks.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Table(name = "S_STOCKS_STOCK", uniqueConstraints = { @UniqueConstraint(columnNames = { "SYMBOL" }) })
+@Cacheable(value = true)
 public class Stock implements Serializable {
 
 	/**
