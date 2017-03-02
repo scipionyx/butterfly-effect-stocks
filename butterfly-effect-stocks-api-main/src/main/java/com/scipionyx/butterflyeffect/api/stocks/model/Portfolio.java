@@ -14,6 +14,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 
@@ -39,6 +42,8 @@ public class Portfolio implements Serializable {
 	private String user;
 
 	@Column(name = "NAME", length = 500)
+	@NotNull
+	@NotBlank
 	private String name;
 
 	@Column(name = "DESCRIPTION", length = 1000)
@@ -47,11 +52,22 @@ public class Portfolio implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, targetEntity = Position.class, fetch = FetchType.EAGER, orphanRemoval = true)
 	private List<Position> positions;
 
-	@Column(name = "PORTFOLIO_ORDER")
-	private int order;
+	@Column(name = "POSITION")
+	private int position;
 
 	@Column(name = "DEFAULT_PORTFOLIO")
 	private Boolean defaultPortfolio;
+
+	public Portfolio(String user, Boolean defaultPortfolio, int position) {
+		super();
+		this.user = user;
+		this.defaultPortfolio = defaultPortfolio;
+		this.position = position;
+	}
+
+	public Portfolio() {
+		super();
+	}
 
 	public String getUser() {
 		return user;
@@ -85,12 +101,26 @@ public class Portfolio implements Serializable {
 		this.positions = positions;
 	}
 
-	public int getOrder() {
-		return order;
+	/**
+	 * @return the position
+	 */
+	public int getPosition() {
+		return position;
 	}
 
-	public void setOrder(int order) {
-		this.order = order;
+	/**
+	 * @param position
+	 *            the position to set
+	 */
+	public void setPosition(int position) {
+		this.position = position;
+	}
+
+	/**
+	 * @return the defaultPortfolio
+	 */
+	public Boolean getDefaultPortfolio() {
+		return defaultPortfolio;
 	}
 
 	public long getId() {

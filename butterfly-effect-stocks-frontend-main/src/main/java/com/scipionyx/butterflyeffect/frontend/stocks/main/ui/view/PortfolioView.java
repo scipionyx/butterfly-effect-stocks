@@ -1,6 +1,7 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 
-import com.scipionyx.butterflyeffect.api.infrastructure.services.client.CrudParameter;
+import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
 import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.model.Position;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
@@ -21,12 +24,14 @@ import com.scipionyx.butterflyeffect.frontend.stocks.main.services.StocksClientS
 import com.scipionyx.butterflyeffect.ui.view.MenuConfiguration;
 import com.scipionyx.butterflyeffect.ui.view.ViewConfiguration;
 import com.vaadin.data.Binder;
+import com.vaadin.data.BinderValidationStatus;
+import com.vaadin.data.converter.StringToDoubleConverter;
+import com.vaadin.data.converter.StringToLongConverter;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -40,6 +45,7 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -47,7 +53,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * 
- * @author rmendes
+ * @author Renato Mendes
  *
  */
 @UIScope
@@ -68,38 +74,28 @@ public class PortfolioView extends AbstractView {
 	private static final long serialVersionUID = 1L;
 	public static final String VIEW_NAME = "butterfly-effect-frontend-stocks-main:portfolio";
 
-	private TabSheet tabSheet;
+	private Map<Portfolio, Tab> map;
 
-	private Map<Portfolio, Grid<Position>> map;
+	private TabSheet tabSheet;
 
 	/**
 	 * 
 	 */
 	@Autowired(required = true)
-	private StocksClientService stockService;
+	private transient StocksClientService stockService;
 
+	/**
+	 * 
+	 */
 	@Autowired(required = true)
-	private PortfolioClientService portfolioClientService;
+	private transient PortfolioClientService portfolioClientService;
 
 	/**
 	 * 
 	 */
 	@Override
 	public void doEnter(ViewChangeEvent event) {
-		//refresh();
-	}
-
-	/**
-	 * @return
-	 * 
-	 */
-	private void refresh() {
-		// TODO - Order by portfolio order
-		// Get all the profiles and update information
-		for (Portfolio portifolio : map.keySet()) {
-			// refresh portfolio data
-			map.get(portifolio).setItems(portifolio.getPositions());
-		}
+		// refresh();
 	}
 
 	/**
@@ -107,14 +103,15 @@ public class PortfolioView extends AbstractView {
 	 * @param portfolio
 	 */
 	private void addPortfolio(Portfolio portfolio) {
-		// Save it
-		// TODO
 
 		Grid<Position> grid = createGrid();
-		Tab addTab = tabSheet.addTab(grid, portfolio.getName(), VaadinIcons.STOCK, portfolio.getOrder());
-		addTab.setClosable(!portfolio.isDefaultPortfolio());
+		grid.setCaption(portfolio.getName());
 
-		map.put(portfolio, grid);
+		Tab tab = tabSheet.addTab(grid, portfolio.getName(), VaadinIcons.STOCK);
+		portfolio.setPosition(tabSheet.getTabPosition(tab));
+		tab.setClosable(!portfolio.isDefaultPortfolio());
+
+		map.put(portfolio, tab);
 
 	}
 
@@ -123,9 +120,17 @@ public class PortfolioView extends AbstractView {
 	 * @param sheet
 	 * @param a
 	 */
-	private void closeIt(TabSheet sheet, Component a) {
-		Portfolio portfolio = null;
-		map.remove(portfolio);
+	private void closeIt(TabSheet sheet, Component tabContent) {
+		Tab tab = sheet.getTab(tabContent);
+		for (Portfolio portfolio_ : map.keySet()) {
+			if (tab.equals(map.get(portfolio_))) {
+				portfolioClientService.delete(portfolio_.getId());
+				break;
+			}
+		}
+		Notification.show("Remove Portfolio", "Portfolio [" + tab.getCaption() + "] successfully removed",
+				Type.TRAY_NOTIFICATION);
+		sheet.removeTab(tab);
 	}
 
 	/**
@@ -134,10 +139,8 @@ public class PortfolioView extends AbstractView {
 	@Override
 	public void doBuildWorkArea(VerticalLayout workArea) throws Exception {
 
-		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Manage Protifolio", event -> managePortifolio()));
-		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Add Stock", event -> addStock()));
-		// addButton(ValoTheme.BUTTON_PRIMARY, new Button("Refresh", event ->
-		// refresh(null)));
+		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Add Portfolio", event -> addPortfolio()));
+		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Add Stock", event -> addPosition()));
 
 		List<Portfolio> portfolios = loadPortfolios();
 
@@ -152,14 +155,14 @@ public class PortfolioView extends AbstractView {
 		// Always select the first tab
 		tabSheet.setSelectedTab(0);
 
-		//
+		// //
 		Panel left = new Panel();
 		left.setSizeFull();
 		left.setCaption("Analysis");
 		left.setStyleName(ValoTheme.PANEL_WELL);
 		left.addStyleName(ValoTheme.PANEL_SCROLL_INDICATOR);
 
-		//
+		// //
 		Panel right = new Panel();
 		right.setSizeFull();
 		right.setCaption("Related News");
@@ -184,50 +187,41 @@ public class PortfolioView extends AbstractView {
 	 * @return
 	 */
 	private Grid<Position> createGrid() {
+
 		Grid<Position> grid = new Grid<>();
 
 		grid.setSizeFull();
 
-		grid.addColumn(Position::getId).setCaption("Id").setHidden(true);
-		grid.addColumn(Position::getStock).setCaption("Symbol").setWidthUndefined();
-		grid.addColumn(Position::getQuantity).setCaption("Quantity").setWidthUndefined();
-		grid.addColumn(Position::getPrice).setCaption("Price").setWidthUndefined();
-		grid.addColumn(Position::getBuy).setCaption("Buy").setWidthUndefined();
-		grid.addColumn(Position::getSell).setCaption("Sell").setWidthUndefined();
-		grid.addColumn(Position::getCurrentPrice).setCaption("Current Price").setWidthUndefined();
-		grid.addColumn(Position::getCurrentValue).setCaption("Current Value").setWidthUndefined();
-		grid.addColumn(Position::getUpdate).setCaption("Last update").setWidthUndefined();
+		// grid.addColumn(Position::getId).setCaption("Id").setHidden(true);
+		grid.addColumn(Position::getStock).setCaption("Symbol");
+		grid.addColumn(Position::getQuantity).setCaption("Quantity");
+		grid.addColumn(Position::getPrice).setCaption("Price");
+		grid.addColumn(Position::getBuy).setCaption("Buy");
+		grid.addColumn(Position::getSell).setCaption("Sell");
+		grid.addColumn(Position::getCurrentPrice).setCaption("Current Price");
+		grid.addColumn(Position::getCurrentValue).setCaption("Current Value");
+		grid.addColumn(Position::getUpdate).setCaption("Last update");
 
 		return grid;
 	}
 
 	/**
+	 * @throws Exception
+	 * @throws RestClientException
 	 * 
 	 */
-	private void managePortifolio() {
-		tabSheet.addTab(new VerticalLayout(), "New Portfolio").setClosable(true);
-	}
-
-	/**
-	 * 
-	 */
-	private void loadGridPortfolio(Portfolio portfolio) {
-
-		Component component = ((Tab) tabSheet.getSelectedTab()).getComponent();
-		@SuppressWarnings("unchecked")
-		Grid<Portfolio> grid = (Grid<Portfolio>) component;
-
-		grid.setItems(new ArrayList<Portfolio>());
-		if (portfolio.getPositions() != null) {
-			for (com.scipionyx.butterflyeffect.api.stocks.model.Position position : portfolio.getPositions()) {
-				// grid.addRow(position.getId(),
-				// position.getStock().getSymbol(),
-				// position.getStock().getName(),
-				// position.getQuantity(), position.getPrice(),
-				// position.getBuy(), position.getSell(), 0d, 0d, 0d,
-				// Status.MONITORING);
-			}
+	private void addPortfolio() {
+		try {
+			String username = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+					.getUsername();
+			NewPortfolioWindow window = new NewPortfolioWindow(
+					new Portfolio(username, Boolean.FALSE, tabSheet.getComponentCount()));
+			window.build();
+			getUI().addWindow(window);
+		} catch (Exception e) {
+			Notification.show("Add Portfolio", e.getMessage(), Type.ERROR_MESSAGE);
 		}
+
 	}
 
 	/**
@@ -238,31 +232,35 @@ public class PortfolioView extends AbstractView {
 
 		//
 		String username = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-		List<CrudParameter> crudParameters = new ArrayList<>();
-		crudParameters.add(new CrudParameter("user", username));
+
+		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+		map.add("user", username);
 
 		List<Portfolio> portfolios = null;
 
 		try {
-			portfolios = portfolioClientService.findAllByOrderBy(crudParameters, "order");
+
+			portfolios = portfolioClientService.findAllByOrderBy(map, "position");
+
+			if (portfolios == null || portfolios.size() == 0) {
+
+				Portfolio portfolio_ = new Portfolio();
+				portfolio_.setPositions(new ArrayList<>());
+				portfolio_.setUser(username);
+				portfolio_.setName("Default");
+				portfolio_.setDefaultPortfolio(true);
+				portfolio_.setDescription("Default Portfolio");
+				portfolio_.setPosition(0);
+
+				portfolios = new ArrayList<>();
+				portfolios.add(portfolio_);
+
+				portfolioClientService.save(portfolio_);
+
+			}
+
 		} catch (Exception e) {
-			Notification.show(e.getMessage(), Type.TRAY_NOTIFICATION);
-			e.printStackTrace();
-		}
-
-		if (portfolios == null || portfolios.size() == 0) {
-
-			Portfolio portfolio_ = new Portfolio();
-			portfolio_.setPositions(new ArrayList<>());
-			portfolio_.setUser(username);
-			portfolio_.setName("Default");
-			portfolio_.setDefaultPortfolio(true);
-			portfolio_.setDescription("Default Portfolio");
-			portfolio_.setOrder(0);
-
-			portfolios = new ArrayList<>();
-			portfolios.add(portfolio_);
-
+			Notification.show("Portfolio", e.getMessage(), Type.ERROR_MESSAGE);
 		}
 
 		return portfolios;
@@ -272,18 +270,14 @@ public class PortfolioView extends AbstractView {
 	/**
 	 * 
 	 */
-	private void addStock() {
-
+	private void addPosition() {
 		try {
-
 			Position position = new Position();
-			StockWindow stockWindow = new StockWindow(position);
-			stockWindow.build();
-			stockWindow.center();
-			getUI().addWindow(stockWindow);
-
+			PositionWindow window = new PositionWindow(position);
+			window.build();
+			getUI().addWindow(window);
 		} catch (Exception e) {
-			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+			Notification.show("Add Position", e.getMessage(), Type.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 
@@ -294,7 +288,91 @@ public class PortfolioView extends AbstractView {
 	 * @author rmendes
 	 *
 	 */
-	private class StockWindow extends Window {
+	private class NewPortfolioWindow extends Window {
+
+		private static final long serialVersionUID = 1L;
+
+		private Portfolio portfolio;
+
+		private Binder<Portfolio> binder;
+
+		/**
+		 * 
+		 * @param portfolio
+		 */
+		public NewPortfolioWindow(Portfolio portfolio) {
+			this.portfolio = portfolio;
+		}
+
+		/**
+		 * 
+		 * @return
+		 * @throws Exception
+		 * @throws RestClientException
+		 */
+		public void build() throws RestClientException, Exception {
+			//
+			this.setWidth(320, Unit.PIXELS);
+			this.setModal(false);
+			this.setResizable(false);
+			center();
+			this.setCaption("Add new Portfolio");
+			//
+			binder = new Binder<>();
+			binder.setBean(portfolio);
+
+			TextField nameTF = new TextField("Name");
+			binder.forField(nameTF).asRequired("Portfolio name is required").bind(Portfolio::getName,
+					Portfolio::setName);
+
+			TextArea descriptionTF = new TextArea("Description");
+			binder.forField(descriptionTF).bind(Portfolio::getDescription, Portfolio::setDescription);
+
+			TextField userTF = new TextField("User");
+			userTF.setReadOnly(true);
+			binder.forField(userTF).bind(Portfolio::getUser, Portfolio::setUser);
+
+			Button confirmBt = new Button("Confirm", event -> confirm());
+			confirmBt.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+
+			//
+			FormLayout formLayout = new FormLayout(nameTF, descriptionTF, userTF, confirmBt);
+			formLayout.setMargin(true);
+
+			//
+			setContent(formLayout);
+
+		}
+
+		private void confirm() {
+			try {
+				BinderValidationStatus<Portfolio> validate = binder.validate();
+				if (validate.isOk()) {
+					Portfolio save = portfolioClientService.save(portfolio);
+					Tab tab = tabSheet.addTab(createGrid());
+					tab.setClosable(true);
+					tab.setCaption(portfolio.getName());
+					tabSheet.setSelectedTab(tab);
+					map.put(save, tab);
+					close();
+					Notification.show("Add Portfolio", "Portfolio successfully added", Type.TRAY_NOTIFICATION);
+				} else if (validate.hasErrors()) {
+					Notification.show("Add Portfolio", validate.getValidationErrors().get(0).getErrorMessage(),
+							Type.HUMANIZED_MESSAGE);
+				}
+			} catch (Exception e) {
+				Notification.show("New Portfolio", e.getMessage(), Type.ERROR_MESSAGE);
+			}
+		}
+
+	}
+
+	/**
+	 * 
+	 * @author rmendes
+	 *
+	 */
+	private class PositionWindow extends Window {
 
 		/**
 		 * 
@@ -303,12 +381,35 @@ public class PortfolioView extends AbstractView {
 
 		private Position position;
 
+		private Binder<Position> binder;
+
 		/**
 		 * 
 		 * @param position
 		 */
-		StockWindow(Position position) {
+		PositionWindow(Position position) {
 			this.position = position;
+		}
+
+		/**
+		 * 
+		 * @param exchangeCB
+		 * @param stockCB
+		 * @throws Exception
+		 */
+		private void exchangeChange(ComboBox<Exchange> exchangeCB, ComboBox<Stock> stockCB) throws Exception {
+			if (exchangeCB.getSelectedItem().isPresent()) {
+				Exchange exchange = exchangeCB.getSelectedItem().get();
+				MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+				map.add("exchange", exchange);
+				//
+				List<Stock> stocks = stockService.findAllByOrderBy(map, "symbol");
+				stockCB.setItems(stocks);
+			} else {
+				stockCB.setItems(new ArrayList<>());
+				stockCB.setSelectedItem(null);
+				stockCB.setEnabled(false);
+			}
 		}
 
 		/**
@@ -320,50 +421,56 @@ public class PortfolioView extends AbstractView {
 		void build() throws RestClientException, Exception {
 
 			//
-			this.setWidth(350, Unit.PIXELS);
-			this.setModal(false);
-			this.setResizable(false);
-			this.setCaption("Add new position");
+			setWidth(320, Unit.PIXELS);
+			setModal(false);
+			setResizable(false);
+			center();
+			setCaption("Add new position");
 
 			//
-			Binder<Position> binder = new Binder<>(Position.class);
+			binder = new Binder<>();
 			binder.setBean(position);
 
+			ComboBox<Exchange> exchangeCB = new ComboBox<>("Exchange");
 			//
-			List<Stock> stocks = stockService.findAllOrderBy("symbol");
+			ComboBox<Stock> stockCB = new ComboBox<>("Stock");
+			exchangeCB.addSelectionListener(listener -> {
+				try {
+					exchangeChange(exchangeCB, stockCB);
+				} catch (Exception e) {
+					Notification.show("Add new position", e.getMessage(), Type.ERROR_MESSAGE);
+				}
+			});
+			stockCB.setEnabled(false);
+			stockCB.setEmptySelectionCaption("<Provide>");
+			binder.forField(stockCB).asRequired("Provide the Stock symbol").bind(Position::getStock,
+					Position::setStock);
 
-			ComboBox<Stock> stockComboBox = new ComboBox<>("Stock", stocks);
-			binder.bind(stockComboBox, "stock");
+			TextField quantityTF = new TextField("Quantity");
+			binder.forField(quantityTF).withNullRepresentation("")
+					.withConverter(new StringToLongConverter("This is a number"))
+					.bind(Position::getQuantity, Position::setQuantity);
 
-			TextField quantityTextField = new TextField("Quantity"); // binder.buildAndBind("Quantity",
-																		// "quantity",
-																		// TextField.class);
-			// quantityTextField.setNullRepresentation("");
+			TextField priceTF = new TextField("Price");
+			binder.forField(priceTF).withNullRepresentation("")
+					.withConverter(new StringToDoubleConverter("Please provide the Stock Price"))
+					.bind(Position::getPrice, Position::setPrice);
 
-			TextField priceTextField = new TextField("Price"); // binder.buildAndBind("Price",
-																// "price",
-																// TextField.class);
-			// priceTextField.setNullRepresentation("");
+			DateField buyDF = new DateField("Buy");
+			binder.forField(buyDF);
 
-			DateField buyDateField = new DateField("Buy");
-			DateField sellDateField = new DateField("Sell");
+			DateField sellDF = new DateField("Sell");
+			binder.forField(sellDF);
 
 			//
-			FormLayout formLayout = new FormLayout();
-			formLayout.setMargin(true);
-
-			formLayout.addComponents(stockComboBox, quantityTextField, priceTextField, buyDateField, sellDateField);
-
 			Button confirmButton = new Button("Confirm", event -> confirm(event, binder));
 			confirmButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 
-			HorizontalLayout horizontalLayout = new HorizontalLayout(confirmButton);
-			horizontalLayout.setMargin(true);
-			horizontalLayout.setComponentAlignment(confirmButton, Alignment.MIDDLE_RIGHT);
+			FormLayout formLayout = new FormLayout(exchangeCB, stockCB, quantityTF, priceTF, buyDF, sellDF,
+					confirmButton);
+			formLayout.setMargin(true);
 
-			VerticalLayout content = new VerticalLayout(formLayout, horizontalLayout);
-
-			this.setContent(content);
+			this.setContent(formLayout);
 
 		}
 
@@ -377,7 +484,7 @@ public class PortfolioView extends AbstractView {
 				binder.validate();
 
 				// Find selected Tab
-				Component selectedTab = tabSheet.getSelectedTab();
+				// Component selectedTab = tabSheet.getSelectedTab();
 				// Find selected Portfolio
 				// Portfolio portfolio = invertedMap.get(selectedTab);
 

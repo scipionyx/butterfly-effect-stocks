@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.hibernate.annotations.QueryHints;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.expression.Expression;
@@ -23,22 +25,24 @@ import org.springframework.stereotype.Component;
  * @param <T>
  */
 @Component
-public class SimpleLookupItemProcessor<T> implements ItemProcessor<T, T> {
+@StepScope
+public class UpdateItemProcessor<T> implements ItemProcessor<T, T> {
 
 	private Map<String, Map<String, Expression>> lookupExpressions;
 
 	private ExpressionParser parser;
 
+	@PersistenceContext
 	private EntityManager entityManager;
 
 	/**
 	 * 
 	 * @param entityManager
 	 */
-	public SimpleLookupItemProcessor(EntityManager entityManager) {
+	public UpdateItemProcessor(EntityManager entityManager){
 		this.entityManager = entityManager;
 	}
-
+	
 	/**
 	 * 
 	 */
@@ -50,6 +54,7 @@ public class SimpleLookupItemProcessor<T> implements ItemProcessor<T, T> {
 			Query createQuery = entityManager.createQuery(query);
 			createQuery.setMaxResults(1);
 			createQuery.setHint(QueryHints.CACHEABLE, Boolean.TRUE);
+			createQuery.setHint(QueryHints.READ_ONLY, Boolean.TRUE);
 
 			Map<String, Expression> map = lookupExpressions.get(query);
 
@@ -79,7 +84,7 @@ public class SimpleLookupItemProcessor<T> implements ItemProcessor<T, T> {
 	 * @param hql
 	 * @param expressions
 	 */
-	public void addLookupExpressions(String hql, String... expressions) {
+	public void addExpression(String hql, String... expressions) {
 
 		if (lookupExpressions == null) {
 			lookupExpressions = new HashMap<>();
