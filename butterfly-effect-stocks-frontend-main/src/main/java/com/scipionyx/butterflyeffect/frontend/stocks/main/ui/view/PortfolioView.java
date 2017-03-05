@@ -1,5 +1,7 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view;
 
+import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 
 import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
@@ -19,14 +19,18 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.model.Position;
 import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.AbstractView;
+import com.scipionyx.butterflyeffect.frontend.stocks.main.services.ExchangeClientService;
 import com.scipionyx.butterflyeffect.frontend.stocks.main.services.PortfolioClientService;
 import com.scipionyx.butterflyeffect.frontend.stocks.main.services.StocksClientService;
 import com.scipionyx.butterflyeffect.ui.view.MenuConfiguration;
 import com.scipionyx.butterflyeffect.ui.view.ViewConfiguration;
+import com.vaadin.annotations.Title;
 import com.vaadin.data.Binder;
 import com.vaadin.data.BinderValidationStatus;
+import com.vaadin.data.converter.LocalDateToDateConverter;
 import com.vaadin.data.converter.StringToDoubleConverter;
 import com.vaadin.data.converter.StringToLongConverter;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -49,6 +53,8 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.renderers.DateRenderer;
+import com.vaadin.ui.renderers.NumberRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -66,6 +72,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 //
 @Configurable(value = PortfolioView.VIEW_NAME)
+@Title(value = PortfolioView.WINDOW_CAPTION)
 public class PortfolioView extends AbstractView {
 
 	/**
@@ -73,20 +80,14 @@ public class PortfolioView extends AbstractView {
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final String VIEW_NAME = "butterfly-effect-frontend-stocks-main:portfolio";
-
-	private Map<Portfolio, Tab> map;
+	protected static final String WINDOW_CAPTION = "Portifolio Management";
 
 	private TabSheet tabSheet;
 
-	/**
-	 * 
-	 */
 	@Autowired(required = true)
 	private transient StocksClientService stockService;
-
-	/**
-	 * 
-	 */
+	@Autowired(required = true)
+	private transient ExchangeClientService exchangeService;
 	@Autowired(required = true)
 	private transient PortfolioClientService portfolioClientService;
 
@@ -95,7 +96,6 @@ public class PortfolioView extends AbstractView {
 	 */
 	@Override
 	public void doEnter(ViewChangeEvent event) {
-		// refresh();
 	}
 
 	/**
@@ -104,33 +104,12 @@ public class PortfolioView extends AbstractView {
 	 */
 	private void addPortfolio(Portfolio portfolio) {
 
-		Grid<Position> grid = createGrid();
-		grid.setCaption(portfolio.getName());
+		PortfolioGrid grid = new PortfolioGrid(portfolio);
 
 		Tab tab = tabSheet.addTab(grid, portfolio.getName(), VaadinIcons.STOCK);
-		portfolio.setPosition(tabSheet.getTabPosition(tab));
+		// portfolio.setPosition(tabSheet.getTabPosition(tab));
 		tab.setClosable(!portfolio.isDefaultPortfolio());
 
-		map.put(portfolio, tab);
-
-	}
-
-	/**
-	 * 
-	 * @param sheet
-	 * @param a
-	 */
-	private void closeIt(TabSheet sheet, Component tabContent) {
-		Tab tab = sheet.getTab(tabContent);
-		for (Portfolio portfolio_ : map.keySet()) {
-			if (tab.equals(map.get(portfolio_))) {
-				portfolioClientService.delete(portfolio_.getId());
-				break;
-			}
-		}
-		Notification.show("Remove Portfolio", "Portfolio [" + tab.getCaption() + "] successfully removed",
-				Type.TRAY_NOTIFICATION);
-		sheet.removeTab(tab);
 	}
 
 	/**
@@ -142,12 +121,10 @@ public class PortfolioView extends AbstractView {
 		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Add Portfolio", event -> addPortfolio()));
 		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Add Stock", event -> addPosition()));
 
-		List<Portfolio> portfolios = loadPortfolios();
-
-		map = new HashMap<>();
 		tabSheet = new TabSheet();
-		tabSheet.setCloseHandler(this::closeIt);
+		tabSheet.setCloseHandler(this::closeTab);
 
+		List<Portfolio> portfolios = loadPortfolios();
 		for (Portfolio portfolio : portfolios) {
 			addPortfolio(portfolio);
 		}
@@ -184,25 +161,16 @@ public class PortfolioView extends AbstractView {
 
 	/**
 	 * 
-	 * @return
+	 * @param sheet
+	 * @param a
 	 */
-	private Grid<Position> createGrid() {
-
-		Grid<Position> grid = new Grid<>();
-
-		grid.setSizeFull();
-
-		// grid.addColumn(Position::getId).setCaption("Id").setHidden(true);
-		grid.addColumn(Position::getStock).setCaption("Symbol");
-		grid.addColumn(Position::getQuantity).setCaption("Quantity");
-		grid.addColumn(Position::getPrice).setCaption("Price");
-		grid.addColumn(Position::getBuy).setCaption("Buy");
-		grid.addColumn(Position::getSell).setCaption("Sell");
-		grid.addColumn(Position::getCurrentPrice).setCaption("Current Price");
-		grid.addColumn(Position::getCurrentValue).setCaption("Current Value");
-		grid.addColumn(Position::getUpdate).setCaption("Last update");
-
-		return grid;
+	private void closeTab(TabSheet sheet, Component tabContent) {
+		PortfolioGrid portfolioGrid = (PortfolioGrid) tabContent;
+		portfolioClientService.delete(portfolioGrid.getPortfolio().getId());
+		Notification.show("Remove Portfolio",
+				"Portfolio [" + portfolioGrid.getPortfolio().getName() + "] successfully removed",
+				Type.TRAY_NOTIFICATION);
+		sheet.removeComponent(tabContent);
 	}
 
 	/**
@@ -226,15 +194,15 @@ public class PortfolioView extends AbstractView {
 
 	/**
 	 * 
-	 * @return
+	 * @return current Portfolio list for the current user
 	 */
 	private List<Portfolio> loadPortfolios() {
 
 		//
 		String username = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
 
-		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-		map.add("user", username);
+		Map<String, Object> map = new HashMap<>();
+		map.put("user", username);
 
 		List<Portfolio> portfolios = null;
 
@@ -244,18 +212,17 @@ public class PortfolioView extends AbstractView {
 
 			if (portfolios == null || portfolios.size() == 0) {
 
-				Portfolio portfolio_ = new Portfolio();
-				portfolio_.setPositions(new ArrayList<>());
-				portfolio_.setUser(username);
-				portfolio_.setName("Default");
-				portfolio_.setDefaultPortfolio(true);
-				portfolio_.setDescription("Default Portfolio");
-				portfolio_.setPosition(0);
+				Portfolio portfolio = new Portfolio();
+				portfolio.setPositions(new ArrayList<>());
+				portfolio.setUser(username);
+				portfolio.setName("Default");
+				portfolio.setDefaultPortfolio(true);
+				portfolio.setDescription("Default Portfolio");
+				portfolio.setPosition(0);
 
-				portfolios = new ArrayList<>();
-				portfolios.add(portfolio_);
+				Portfolio save = portfolioClientService.save(portfolio);
 
-				portfolioClientService.save(portfolio_);
+				portfolios = Arrays.asList(save);
 
 			}
 
@@ -272,10 +239,7 @@ public class PortfolioView extends AbstractView {
 	 */
 	private void addPosition() {
 		try {
-			Position position = new Position();
-			PositionWindow window = new PositionWindow(position);
-			window.build();
-			getUI().addWindow(window);
+			getUI().addWindow((new NewPositionWindow(new Position())).build());
 		} catch (Exception e) {
 			Notification.show("Add Position", e.getMessage(), Type.ERROR_MESSAGE);
 			e.printStackTrace();
@@ -285,7 +249,9 @@ public class PortfolioView extends AbstractView {
 
 	/**
 	 * 
-	 * @author rmendes
+	 * This dialog will add a new Portfolio
+	 * 
+	 * @author Renato Mendes
 	 *
 	 */
 	private class NewPortfolioWindow extends Window {
@@ -345,34 +311,33 @@ public class PortfolioView extends AbstractView {
 		}
 
 		private void confirm() {
-			try {
-				BinderValidationStatus<Portfolio> validate = binder.validate();
-				if (validate.isOk()) {
-					Portfolio save = portfolioClientService.save(portfolio);
-					Tab tab = tabSheet.addTab(createGrid());
-					tab.setClosable(true);
-					tab.setCaption(portfolio.getName());
-					tabSheet.setSelectedTab(tab);
-					map.put(save, tab);
-					close();
-					Notification.show("Add Portfolio", "Portfolio successfully added", Type.TRAY_NOTIFICATION);
-				} else if (validate.hasErrors()) {
-					Notification.show("Add Portfolio", validate.getValidationErrors().get(0).getErrorMessage(),
-							Type.HUMANIZED_MESSAGE);
-				}
-			} catch (Exception e) {
-				Notification.show("New Portfolio", e.getMessage(), Type.ERROR_MESSAGE);
+
+			BinderValidationStatus<Portfolio> validate = binder.validate();
+			if (validate.isOk()) {
+				portfolio.setPositions(new ArrayList<>());
+				Portfolio save = portfolioClientService.save(portfolio);
+				Tab tab = tabSheet.addTab(new PortfolioGrid(save), portfolio.getName(), VaadinIcons.STOCK);
+				tab.setClosable(true);
+				tabSheet.setSelectedTab(tab);
+				close();
+				Notification.show("Add Portfolio", "Portfolio successfully added", Type.TRAY_NOTIFICATION);
+			} else if (validate.hasErrors()) {
+				Notification.show("Add Portfolio", validate.getValidationErrors().get(0).getErrorMessage(),
+						Type.HUMANIZED_MESSAGE);
 			}
+
 		}
 
 	}
 
 	/**
 	 * 
-	 * @author rmendes
+	 * This dialog will add new Positions
+	 * 
+	 * @author Renato Mendes
 	 *
 	 */
-	private class PositionWindow extends Window {
+	private class NewPositionWindow extends Window {
 
 		/**
 		 * 
@@ -383,11 +348,13 @@ public class PortfolioView extends AbstractView {
 
 		private Binder<Position> binder;
 
+		private final String WINDOW_CAPTION = "Add new position";
+
 		/**
 		 * 
 		 * @param position
 		 */
-		PositionWindow(Position position) {
+		NewPositionWindow(Position position) {
 			this.position = position;
 		}
 
@@ -400,11 +367,12 @@ public class PortfolioView extends AbstractView {
 		private void exchangeChange(ComboBox<Exchange> exchangeCB, ComboBox<Stock> stockCB) throws Exception {
 			if (exchangeCB.getSelectedItem().isPresent()) {
 				Exchange exchange = exchangeCB.getSelectedItem().get();
-				MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-				map.add("exchange", exchange);
+				Map<String, Object> map = new HashMap<>();
+				map.put("exchange", exchange);
 				//
 				List<Stock> stocks = stockService.findAllByOrderBy(map, "symbol");
 				stockCB.setItems(stocks);
+				stockCB.setEnabled(true);
 			} else {
 				stockCB.setItems(new ArrayList<>());
 				stockCB.setSelectedItem(null);
@@ -418,20 +386,22 @@ public class PortfolioView extends AbstractView {
 		 * @throws Exception
 		 * @throws RestClientException
 		 */
-		void build() throws RestClientException, Exception {
+		public NewPositionWindow build() throws RestClientException, Exception {
 
 			//
 			setWidth(320, Unit.PIXELS);
 			setModal(false);
 			setResizable(false);
 			center();
-			setCaption("Add new position");
+			setCaption(WINDOW_CAPTION);
 
 			//
 			binder = new Binder<>();
 			binder.setBean(position);
 
-			ComboBox<Exchange> exchangeCB = new ComboBox<>("Exchange");
+			List<Exchange> exchanges = exchangeService.findAll();
+			ComboBox<Exchange> exchangeCB = new ComboBox<>("Exchange", exchanges);
+			exchangeCB.setItemCaptionGenerator(item -> item.getCode());
 			//
 			ComboBox<Stock> stockCB = new ComboBox<>("Stock");
 			exchangeCB.addSelectionListener(listener -> {
@@ -442,7 +412,6 @@ public class PortfolioView extends AbstractView {
 				}
 			});
 			stockCB.setEnabled(false);
-			stockCB.setEmptySelectionCaption("<Provide>");
 			binder.forField(stockCB).asRequired("Provide the Stock symbol").bind(Position::getStock,
 					Position::setStock);
 
@@ -457,10 +426,12 @@ public class PortfolioView extends AbstractView {
 					.bind(Position::getPrice, Position::setPrice);
 
 			DateField buyDF = new DateField("Buy");
-			binder.forField(buyDF);
+			binder.forField(buyDF).withConverter(new LocalDateToDateConverter()).bind(Position::getBuy,
+					Position::setBuy);
 
 			DateField sellDF = new DateField("Sell");
-			binder.forField(sellDF);
+			binder.forField(sellDF).withConverter(new LocalDateToDateConverter()).bind(Position::getSell,
+					Position::setSell);
 
 			//
 			Button confirmButton = new Button("Confirm", event -> confirm(event, binder));
@@ -472,6 +443,8 @@ public class PortfolioView extends AbstractView {
 
 			this.setContent(formLayout);
 
+			return this;
+
 		}
 
 		/**
@@ -480,24 +453,111 @@ public class PortfolioView extends AbstractView {
 		 * 
 		 */
 		private void confirm(ClickEvent event, Binder<Position> binder) {
-			try {
-				binder.validate();
 
-				// Find selected Tab
-				// Component selectedTab = tabSheet.getSelectedTab();
-				// Find selected Portfolio
-				// Portfolio portfolio = invertedMap.get(selectedTab);
+			BinderValidationStatus<Position> validate = binder.validate();
 
-				// portfolio.getPositions().add(position);
-				// portfolioClientService.save(portfolio);
-				// refresh(portfolio);
+			if (validate.isOk()) {
 
+				// Find & Save selected Tab
+				PortfolioGrid grid = (PortfolioGrid) tabSheet.getSelectedTab();
+				grid.addPosition(validate.getBinder().getBean());
+
+				// Finalize all
+				Notification.show(WINDOW_CAPTION, "New position added successfuly", Type.TRAY_NOTIFICATION);
 				close();
 
-			} catch (Exception e) {
+			} else {
+
 				Notification.show("Please provided the required information", Type.HUMANIZED_MESSAGE);
+
 			}
 
+		}
+
+	}
+
+	/**
+	 * This Grid carries the portfolio information
+	 * 
+	 * @author Renato Mendes
+	 *
+	 */
+	private class PortfolioGrid extends Grid<Position> {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		private Portfolio portfolio;
+
+		public PortfolioGrid(Portfolio portfolio) {
+
+			this.portfolio = portfolio;
+
+			this.addColumn(position -> position.getStock().getExchange().getCode()).setCaption("Exchange")
+					.setHidable(true);
+			this.addColumn(position -> position.getStock().getSymbol()).setCaption("Symbol");
+			this.addColumn(position -> position.getStock().getName()).setCaption("Name").setHidable(true);
+
+			this.addColumn(position -> position.getStock().getExchange().getCountry().getName()).setCaption("Country")
+					.setHidable(true);
+			this.addColumn(position -> position.getStock().getExchange().getCountry().getName()).setCaption("Currency")
+					.setHidable(true);
+
+			this.addColumn(Position::getQuantity, new NumberRenderer(NumberFormat.getIntegerInstance()))
+					.setCaption("Quantity").setHidable(true);
+			this.addColumn(Position::getCost, new NumberRenderer(NumberFormat.getCurrencyInstance())).setCaption("Cost")
+					.setHidable(true);
+			this.addColumn(Position::getBuy, new DateRenderer(DateFormat.getDateInstance(DateFormat.SHORT)))
+					.setCaption("Buy").setHidable(true);
+			this.addColumn(
+					position -> (position.getQuantity() != null && position.getCost() != null)
+							? position.getQuantity() * position.getCost() : null,
+					new NumberRenderer(NumberFormat.getCurrencyInstance())).setCaption("Investiment").setHidable(true);
+
+			this.addColumn(Position::getPrice, new NumberRenderer(NumberFormat.getCurrencyInstance()))
+					.setCaption("Price").setHidable(true);
+			this.addColumn(Position::getSell, new DateRenderer(DateFormat.getDateInstance(DateFormat.SHORT)))
+					.setCaption("Sell").setHidable(true);
+			this.addColumn(Position::getCurrentPrice, new NumberRenderer(NumberFormat.getCurrencyInstance()))
+					.setCaption("Current Price").setHidable(true);
+			this.addColumn(Position::getCurrentValue, new NumberRenderer(NumberFormat.getCurrencyInstance()))
+					.setCaption("Current Value").setHidable(true);
+			this.addColumn(Position::getUpdate, new DateRenderer(DateFormat.getDateInstance(DateFormat.SHORT)))
+					.setCaption("Last update").setHidable(true);
+
+			// this.setCaption(portfolio.getName());
+
+			//
+			this.setSizeFull();
+			// this.setFrozenColumnCount(1);
+
+			this.setDataProvider(new ListDataProvider<>(portfolio.getPositions()));
+
+		}
+
+		public void addPosition(Position newPosition) {
+
+			// refresh current portfolio
+			portfolio = portfolioClientService.findOne(portfolio.getId());
+
+			// add new
+			portfolio.getPositions().add(newPosition);
+
+			// save
+			portfolio = portfolioClientService.save(portfolio);
+
+			// refresh;
+			setDataProvider(new ListDataProvider<>(portfolio.getPositions()));
+
+		}
+
+		/**
+		 * @return the portfolio
+		 */
+		public Portfolio getPortfolio() {
+			return portfolio;
 		}
 
 	}

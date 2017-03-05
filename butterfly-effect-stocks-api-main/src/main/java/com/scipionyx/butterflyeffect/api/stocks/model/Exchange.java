@@ -1,5 +1,7 @@
 package com.scipionyx.butterflyeffect.api.stocks.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,7 +28,12 @@ import com.neovisionaries.i18n.CurrencyCode;
 @Entity
 @Table(name = "S_STOCKS_EXCHANGE", uniqueConstraints = { @UniqueConstraint(columnNames = { "CODE" }) })
 @Cacheable(value = true)
-public class Exchange {
+public class Exchange implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
@@ -45,11 +52,11 @@ public class Exchange {
 	@Column(name = "DESCRIPTION", length = 1000)
 	private String description;
 
-	@Column(name = "COUNTRY", length = 3)
+	@Column(name = "COUNTRY", length = 5)
 	@Enumerated(EnumType.STRING)
 	private CountryCode country;
 
-	@Column(name = "CURRENCY", length = 3)
+	@Column(name = "CURRENCY", length = 5)
 	@Enumerated(EnumType.STRING)
 	private CurrencyCode currency;
 

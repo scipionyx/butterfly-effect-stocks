@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -175,9 +175,11 @@ public class LoadSymbolsJob extends AbstractJobDefinition {
 
 			@Override
 			public Stock process(Stock stock) throws Exception {
-				Exchange exchange_ = new Exchange();
-				exchange_.setCode(exchange);
-				stock.setExchange(exchange_);
+				if (stock.getExchange() == null) {
+					Exchange exchange_ = new Exchange();
+					exchange_.setCode(exchange);
+					stock.setExchange(exchange_);
+				}
 				return stock;
 			}
 		};
@@ -197,18 +199,21 @@ public class LoadSymbolsJob extends AbstractJobDefinition {
 	 * TODO - I'm not sure if the Entity Manager definition is correct, meaning
 	 * Spring will inject the proper EM for the current thread.
 	 * 
-	 * @param entityManager
+	 * @param entityManagerFactory
 	 * @return
+	 * @throws ClassNotFoundException
 	 */
 	@Bean(name = "jobStockImportSymbols_Step01_Processor_update")
 	@StepScope
-	public UpdateItemProcessor<Stock> updateProcessor(EntityManager entityManager) {
+	public UpdateItemProcessor<Stock> updateProcessor(EntityManagerFactory entityManagerFactory)
+			throws ClassNotFoundException {
 
-		Assert.notNull(entityManager);
+		Assert.notNull(entityManagerFactory);
 
-		UpdateItemProcessor<Stock> updateProcessor = new UpdateItemProcessor<>(entityManager);
+		UpdateItemProcessor<Stock> updateProcessor = new UpdateItemProcessor<>(entityManagerFactory);
 		updateProcessor.addExpression("from Stock a where a.symbol = :symbol", "symbol=symbol");
-
+		String[] pi = { "id", "exchange" };
+		updateProcessor.setPropertiesToIgnore(pi);
 		return updateProcessor;
 
 	}
@@ -218,16 +223,16 @@ public class LoadSymbolsJob extends AbstractJobDefinition {
 	 * TODO - I'm not sure if the Entity Manager definition is correct, meaning
 	 * Spring will inject the proper EM for the current thread.
 	 * 
-	 * @param entityManager
+	 * @param entityManagerFactory
 	 * @return
 	 */
 	@Bean(name = "jobStockImportSymbols_Step01_Processor_lookup")
 	@StepScope
-	public LookupItemProcessor<Stock> lookupProcessor(EntityManager entityManager) {
+	public LookupItemProcessor<Stock> lookupProcessor(EntityManagerFactory entityManagerFactory) {
 
-		Assert.notNull(entityManager);
+		Assert.notNull(entityManagerFactory);
 
-		LookupItemProcessor<Stock> updateProcessor = new LookupItemProcessor<>(entityManager);
+		LookupItemProcessor<Stock> updateProcessor = new LookupItemProcessor<>(entityManagerFactory);
 		Map<String, String> hqlExpressions = new HashMap<>();
 		hqlExpressions.put("code", "exchange.code");
 		updateProcessor.addExpression("01", "exchange", "from Exchange a where a.code = :code", hqlExpressions);

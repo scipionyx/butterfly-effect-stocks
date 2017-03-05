@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -15,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,19 +37,36 @@ public class UpdateItemProcessor<T> implements ItemProcessor<T, T> {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	private EntityManagerFactory entityManagerFactory;
+
+	private String[] propertiesToIgnore;
+
 	/**
 	 * 
 	 * @param entityManager
 	 */
-	public UpdateItemProcessor(EntityManager entityManager){
-		this.entityManager = entityManager;
+	public UpdateItemProcessor() {
+
 	}
-	
+
+	/**
+	 * 
+	 * @param entityManager
+	 */
+	public UpdateItemProcessor(EntityManagerFactory entityManagerFactory) {
+		super();
+		this.entityManagerFactory = entityManagerFactory;
+	}
+
 	/**
 	 * 
 	 */
 	@Override
 	public T process(T item) throws Exception {
+
+		if (entityManager == null) {
+			entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory);
+		}
 
 		for (String query : lookupExpressions.keySet()) {
 
@@ -68,8 +87,13 @@ public class UpdateItemProcessor<T> implements ItemProcessor<T, T> {
 
 			if (resultList.size() == 1) {
 				// Update
-				BeanUtils.copyProperties(item, resultList.get(0), "id");
-				return resultList.get(0);
+				T target = resultList.get(0);
+				if (propertiesToIgnore != null) {
+					BeanUtils.copyProperties(item, target, propertiesToIgnore);
+				} else {
+					BeanUtils.copyProperties(item, target);
+				}
+				return target;
 			} else
 				return item;
 
@@ -106,6 +130,21 @@ public class UpdateItemProcessor<T> implements ItemProcessor<T, T> {
 
 		lookupExpressions.put(hql, expressionMap);
 
+	}
+
+	/**
+	 * @return the propertiesToIgnore
+	 */
+	public String[] getPropertiesToIgnore() {
+		return propertiesToIgnore;
+	}
+
+	/**
+	 * @param propertiesToIgnore
+	 *            the propertiesToIgnore to set
+	 */
+	public void setPropertiesToIgnore(String[] propertiesToIgnore) {
+		this.propertiesToIgnore = propertiesToIgnore;
 	}
 
 }

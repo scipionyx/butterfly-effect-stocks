@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EntityManagerFactory;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -194,7 +196,8 @@ public class LoadExchangeJob extends AbstractJobDefinition {
 	 */
 	@Bean(name = "jobExchangeImport_Step01_Processor")
 	@StepScope
-	public ItemProcessor<Exchange, Exchange> getProcessor(UpdateItemProcessor<Exchange> processor) {
+	public ItemProcessor<Exchange, Exchange> getProcessor(
+			@Qualifier("jobExchangeImport_Step01_Processor_update") UpdateItemProcessor<Exchange> processor) {
 
 		//
 		processor.addExpression("from Exchange a where a.code = :code", "code=code");
@@ -213,6 +216,19 @@ public class LoadExchangeJob extends AbstractJobDefinition {
 		compositeItemProcessor.setDelegates(Arrays.asList(processor, itemProcessor));
 
 		return compositeItemProcessor;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	@Bean(name = "jobExchangeImport_Step01_Processor_update")
+	@StepScope
+	public UpdateItemProcessor<Exchange> getUpdateItemProcessor(EntityManagerFactory entityManagerFactory) {
+		UpdateItemProcessor<Exchange> updateItemProcessor = new UpdateItemProcessor<>(entityManagerFactory);
+		String[] pti = { "id" };
+		updateItemProcessor.setPropertiesToIgnore(pti);
+		return updateItemProcessor;
 	}
 
 }

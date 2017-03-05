@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
 import org.hibernate.annotations.QueryHints;
@@ -14,6 +14,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 
 /**
  * 
@@ -31,8 +32,7 @@ public class LookupItemProcessor<T> implements ItemProcessor<T, T> {
 
 	private ExpressionParser parser;
 
-	@PersistenceContext
-	private EntityManager entityManager;
+	private EntityManagerFactory entityManagerFactory;
 
 	/**
 	 * 
@@ -40,8 +40,8 @@ public class LookupItemProcessor<T> implements ItemProcessor<T, T> {
 	 * 
 	 * @param entityManager
 	 */
-	public LookupItemProcessor(EntityManager entityManager) {
-		this.entityManager = entityManager;
+	public LookupItemProcessor(EntityManagerFactory entityManagerFactory) {
+		this.entityManagerFactory = entityManagerFactory;
 	}
 
 	/**
@@ -49,6 +49,8 @@ public class LookupItemProcessor<T> implements ItemProcessor<T, T> {
 	 */
 	@Override
 	public T process(T item) throws Exception {
+
+		EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory);
 
 		for (CompiledExpression compiledExpression : compiledExpressions) {
 
@@ -64,7 +66,7 @@ public class LookupItemProcessor<T> implements ItemProcessor<T, T> {
 				Expression expression = map.get(field);
 				query.setParameter(field, expression.getValue(item));
 			}
-
+			
 			List<?> resultList = query.getResultList();
 
 			if (resultList.size() == 1) {

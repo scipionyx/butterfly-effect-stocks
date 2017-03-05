@@ -40,7 +40,7 @@ public class Stock implements Serializable {
 	@NotNull
 	@NotBlank
 	@NotEmpty
-	@Column(name = "SYMBOL", length = 5)
+	@Column(name = "SYMBOL", length = 10)
 	private String symbol;
 
 	@NotNull

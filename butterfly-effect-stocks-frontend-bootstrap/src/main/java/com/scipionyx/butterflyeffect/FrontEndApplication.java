@@ -8,6 +8,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.EnableLoadTimeWeaving;
 import org.springframework.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 //
@@ -30,9 +31,18 @@ public class FrontEndApplication {
 		SpringApplication.run(FrontEndApplication.class, args);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	@Bean
 	public RestTemplate restTemplate() {
-		return new RestTemplate();
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+		return restTemplate;
 	}
 
 }

@@ -50,6 +50,9 @@ public class Position implements Serializable {
 	@Column(name = "DATE_SELL", nullable = true)
 	private Date sell;
 
+	@Column(name = "COST")
+	private Double cost;
+
 	@Column(name = "PRICE")
 	private Double price;
 
@@ -200,6 +203,21 @@ public class Position implements Serializable {
 	 */
 	public void setCurrentValue(Double currentValue) {
 		this.currentValue = currentValue;
+	}
+
+	/**
+	 * @return the cost
+	 */
+	public Double getCost() {
+		return cost;
+	}
+
+	/**
+	 * @param cost
+	 *            the cost to set
+	 */
+	public void setCost(Double cost) {
+		this.cost = cost;
 	}
 
 }
