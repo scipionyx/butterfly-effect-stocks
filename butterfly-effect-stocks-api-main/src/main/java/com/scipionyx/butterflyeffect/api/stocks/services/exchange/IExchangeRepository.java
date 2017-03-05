@@ -11,6 +11,6 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
  * @author Renato Mendes
  *
  */
-public interface ExchangeCrudRepository extends CrudRepository<Exchange, Long> {
+public interface IExchangeRepository extends CrudRepository<Exchange, Long> {
 
 }

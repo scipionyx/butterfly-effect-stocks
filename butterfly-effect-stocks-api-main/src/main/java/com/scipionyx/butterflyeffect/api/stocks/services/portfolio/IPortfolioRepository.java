@@ -11,6 +11,6 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
  * @author Renato Mendes
  *
  */
-public interface PortfolioCrudRepository extends CrudRepository<Portfolio, Long> {
+public interface IPortfolioRepository extends CrudRepository<Portfolio, Long> {
 
 }

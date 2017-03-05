@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.api.stocks.services;
+package com.scipionyx.butterflyeffect.api.stocks.services.news;
 
 import java.util.Map;
 

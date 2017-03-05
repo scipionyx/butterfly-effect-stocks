@@ -2,9 +2,9 @@ package com.scipionyx.butterflyeffect.backend.stocks.main.services.portfolio;
 
 import org.springframework.stereotype.Component;
 
-import com.scipionyx.butterflyeffect.api.infrastructure.services.server.AbstractDataAccessService;
+import com.scipionyx.butterflyeffect.api.infrastructure.services.server.data.AbstractDataAccessService;
 import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
-import com.scipionyx.butterflyeffect.api.stocks.services.portfolio.PortfolioCrudRepository;
+import com.scipionyx.butterflyeffect.api.stocks.services.portfolio.IPortfolioRepository;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.scipionyx.butterflyeffect.api.stocks.services.portfolio.PortfolioCrud
  *
  */
 @Component
-public class PortfolioService extends AbstractDataAccessService<Portfolio, PortfolioCrudRepository> {
+public class PortfolioService extends AbstractDataAccessService<Portfolio, IPortfolioRepository> {
 
 	/**
 	 * 

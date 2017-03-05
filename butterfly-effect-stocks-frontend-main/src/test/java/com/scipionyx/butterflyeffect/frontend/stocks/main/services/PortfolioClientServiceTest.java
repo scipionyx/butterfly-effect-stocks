@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = {})
 public class PortfolioClientServiceTest {
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private PortfolioClientService service;
 
