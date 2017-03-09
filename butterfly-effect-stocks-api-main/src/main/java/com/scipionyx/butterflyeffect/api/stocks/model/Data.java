@@ -3,17 +3,25 @@ package com.scipionyx.butterflyeffect.api.stocks.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Id;
+
+import org.springframework.data.elasticsearch.annotations.Document;
+
 /**
  * 
  * @author rmendes
  *
  */
+@Document(indexName = "s_stocks_data", shards = 3, createIndex = true, replicas = 2)
 public class Data implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	@Id
+	private Long id;
 
 	//
 	private Date read;
@@ -154,16 +162,43 @@ public class Data implements Serializable {
 	private String orderBookRealTime;
 
 	// j1 Market Capitalization
+	@YahooData(option = "j1")
+	private String marketCapitalization;
+
 	// j3 Market Cap (Real-time)
+	@YahooData(option = "j3")
+	private String marketCapitalizationRealTime;
+
 	// j4 EBITDA
+	@YahooData(option = "j4")
+	private String ebitda;
+
 	// j5 Change From 52-week Low
+	@YahooData(option = "j5")
+	private String changeFrom52wLow;
+
 	// j6 Percent Change From 52-week Low
+	@YahooData(option = "j6")
+	private String percentChangeFrom52wLow;
+
 	// k1 Last Trade (Real-time) With Time
+	@YahooData(option = "k1")
+	private String lastTradeRealTimeWithTime;
+
 	// k2 Change Percent (Real-time)
+	@YahooData(option = "k2")
+	private String changePercentRealTime;
+
 	// k3 Last Trade Size
+	@YahooData(option = "k3")
+	private String lastTradeSize;
+
 	// k4 Change From 52-week High
 	// k5 Percebt Change From 52-week High
 	// l Last Trade (With Time)
+	@YahooData(option = "l")
+	private String lastTrade;
+
 	// l1 Last Trade (Price Only)
 	// l2 High Limit
 	// l3 Low Limit m Day’s Range
@@ -191,37 +226,104 @@ public class Data implements Serializable {
 	private String open;
 
 	// p Previous Close //
+	@YahooData(option = "p")
+	private String previousClose;
+
 	// p1 Price Paid
+	@YahooData(option = "p1")
+	private String pricePaid;
+
 	// p2 Change in Percent
+	@YahooData(option = "p2")
+	private String changeInPercent;
+
 	// p5 Price/Sales
+	@YahooData(option = "p5")
+	private String pricePerSales;
+
 	// p6 Price/Book
+	@YahooData(option = "p6")
+	private String pricePerBook;
+
 	// q Ex-Dividend Date
+	@YahooData(option = "q")
+	private String exDividendDate;
+
 	// r P/E Ratio
+	@YahooData(option = "r")
+	private String peRatio;
+
 	// r1 Dividend Pay Date
+	@YahooData(option = "r1")
+	private String dividendPayDate;
+
 	// r2 P/E Ratio (Real-time)
+	@YahooData(option = "r2")
+	private String peRatioRealTime;
+
 	// r5 PEG Ratio
+	@YahooData(option = "r5")
+	private String pegRatio;
+
 	// r6 Price/EPS Estimate Current Year
+	@YahooData(option = "r6")
+	private String pricePerepsEstimateCurrentYear;
+
 	// r7 Price/EPS Estimate Next Year
+	@YahooData(option = "r7")
+	private String pricePerepsEstimateNextYear;
 
 	// s Symbol
 	@YahooData(option = "s")
 	private String symbol;
 
 	// s1 Shares Owned
+	@YahooData(option = "s1")
+	private String sharesOwned;
+
 	// s7 Short Ratio
+	@YahooData(option = "s7")
+	private String shortRatio;
+
 	// t1 Last Trade Time
+	@YahooData(option = "t1")
+	private String lastTradeTime;
+
 	// t6 Trade Links
+	@YahooData(option = "t6")
+	private String tradeLink;
+
 	// t7 Ticker Trend
+	@YahooData(option = "t7")
+	private String tickerTrend;
+
 	// t8 1 yr Target Price
+	@YahooData(option = "t8")
+	private String targetPrice1y;
+
 	// v Volume
 	@YahooData(option = "v")
 	private String volume;
 
 	// v1 Holdings Value
+	@YahooData(option = "v1")
+	private String holdingsValue;
+
 	// v7 Holdings Value (Real-time)
+	@YahooData(option = "v7")
+	private String holdingsValueRealTime;
+
 	// w 52-week Range
+	@YahooData(option = "w")
+	private String weekRange52;
+
 	// w1 Day’s Value Change
+	@YahooData(option = "w1")
+	private String daysValueChange;
+
 	// w4 Day’s Value Change (Real-time)
+	@YahooData(option = "w4")
+	private String daysValueChangeRealTime;
 
 	// x Stock Exchange
 	@YahooData(option = "x")
@@ -679,6 +781,696 @@ public class Data implements Serializable {
 	 */
 	public void setAnnualizedGain(String annualizedGain) {
 		this.annualizedGain = annualizedGain;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the holdingsGain
+	 */
+	public String getHoldingsGain() {
+		return holdingsGain;
+	}
+
+	/**
+	 * @param holdingsGain
+	 *            the holdingsGain to set
+	 */
+	public void setHoldingsGain(String holdingsGain) {
+		this.holdingsGain = holdingsGain;
+	}
+
+	/**
+	 * @return the holdingsGainPercentRealTime
+	 */
+	public String getHoldingsGainPercentRealTime() {
+		return holdingsGainPercentRealTime;
+	}
+
+	/**
+	 * @param holdingsGainPercentRealTime
+	 *            the holdingsGainPercentRealTime to set
+	 */
+	public void setHoldingsGainPercentRealTime(String holdingsGainPercentRealTime) {
+		this.holdingsGainPercentRealTime = holdingsGainPercentRealTime;
+	}
+
+	/**
+	 * @return the holdingsGainRealTime
+	 */
+	public String getHoldingsGainRealTime() {
+		return holdingsGainRealTime;
+	}
+
+	/**
+	 * @param holdingsGainRealTime
+	 *            the holdingsGainRealTime to set
+	 */
+	public void setHoldingsGainRealTime(String holdingsGainRealTime) {
+		this.holdingsGainRealTime = holdingsGainRealTime;
+	}
+
+	/**
+	 * @return the moreInfo
+	 */
+	public String getMoreInfo() {
+		return moreInfo;
+	}
+
+	/**
+	 * @param moreInfo
+	 *            the moreInfo to set
+	 */
+	public void setMoreInfo(String moreInfo) {
+		this.moreInfo = moreInfo;
+	}
+
+	/**
+	 * @return the orderBookRealTime
+	 */
+	public String getOrderBookRealTime() {
+		return orderBookRealTime;
+	}
+
+	/**
+	 * @param orderBookRealTime
+	 *            the orderBookRealTime to set
+	 */
+	public void setOrderBookRealTime(String orderBookRealTime) {
+		this.orderBookRealTime = orderBookRealTime;
+	}
+
+	/**
+	 * @return the percentChangeFrom50DayMovingAverage
+	 */
+	public String getPercentChangeFrom50DayMovingAverage() {
+		return percentChangeFrom50DayMovingAverage;
+	}
+
+	/**
+	 * @param percentChangeFrom50DayMovingAverage
+	 *            the percentChangeFrom50DayMovingAverage to set
+	 */
+	public void setPercentChangeFrom50DayMovingAverage(String percentChangeFrom50DayMovingAverage) {
+		this.percentChangeFrom50DayMovingAverage = percentChangeFrom50DayMovingAverage;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the notes
+	 */
+	public String getNotes() {
+		return notes;
+	}
+
+	/**
+	 * @param notes
+	 *            the notes to set
+	 */
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	/**
+	 * @return the open
+	 */
+	public String getOpen() {
+		return open;
+	}
+
+	/**
+	 * @param open
+	 *            the open to set
+	 */
+	public void setOpen(String open) {
+		this.open = open;
+	}
+
+	/**
+	 * @return the symbol
+	 */
+	public String getSymbol() {
+		return symbol;
+	}
+
+	/**
+	 * @param symbol
+	 *            the symbol to set
+	 */
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+
+	/**
+	 * @return the volume
+	 */
+	public String getVolume() {
+		return volume;
+	}
+
+	/**
+	 * @param volume
+	 *            the volume to set
+	 */
+	public void setVolume(String volume) {
+		this.volume = volume;
+	}
+
+	/**
+	 * @return the stockExchange
+	 */
+	public String getStockExchange() {
+		return stockExchange;
+	}
+
+	/**
+	 * @param stockExchange
+	 *            the stockExchange to set
+	 */
+	public void setStockExchange(String stockExchange) {
+		this.stockExchange = stockExchange;
+	}
+
+	/**
+	 * @return the dividendYield
+	 */
+	public String getDividendYield() {
+		return dividendYield;
+	}
+
+	/**
+	 * @param dividendYield
+	 *            the dividendYield to set
+	 */
+	public void setDividendYield(String dividendYield) {
+		this.dividendYield = dividendYield;
+	}
+
+	/**
+	 * @return the lastTradeSize
+	 */
+	public String getLastTradeSize() {
+		return lastTradeSize;
+	}
+
+	/**
+	 * @param lastTradeSize
+	 *            the lastTradeSize to set
+	 */
+	public void setLastTradeSize(String lastTradeSize) {
+		this.lastTradeSize = lastTradeSize;
+	}
+
+	/**
+	 * @return the lastTrade
+	 */
+	public String getLastTrade() {
+		return lastTrade;
+	}
+
+	/**
+	 * @param lastTrade
+	 *            the lastTrade to set
+	 */
+	public void setLastTrade(String lastTrade) {
+		this.lastTrade = lastTrade;
+	}
+
+	/**
+	 * @return the sharesOwned
+	 */
+	public String getSharesOwned() {
+		return sharesOwned;
+	}
+
+	/**
+	 * @param sharesOwned
+	 *            the sharesOwned to set
+	 */
+	public void setSharesOwned(String sharesOwned) {
+		this.sharesOwned = sharesOwned;
+	}
+
+	/**
+	 * @return the shortRatio
+	 */
+	public String getShortRatio() {
+		return shortRatio;
+	}
+
+	/**
+	 * @param shortRatio
+	 *            the shortRatio to set
+	 */
+	public void setShortRatio(String shortRatio) {
+		this.shortRatio = shortRatio;
+	}
+
+	/**
+	 * @return the lastTradeTime
+	 */
+	public String getLastTradeTime() {
+		return lastTradeTime;
+	}
+
+	/**
+	 * @param lastTradeTime
+	 *            the lastTradeTime to set
+	 */
+	public void setLastTradeTime(String lastTradeTime) {
+		this.lastTradeTime = lastTradeTime;
+	}
+
+	/**
+	 * @return the tradeLink
+	 */
+	public String getTradeLink() {
+		return tradeLink;
+	}
+
+	/**
+	 * @param tradeLink
+	 *            the tradeLink to set
+	 */
+	public void setTradeLink(String tradeLink) {
+		this.tradeLink = tradeLink;
+	}
+
+	/**
+	 * @return the tickerTrend
+	 */
+	public String getTickerTrend() {
+		return tickerTrend;
+	}
+
+	/**
+	 * @param tickerTrend
+	 *            the tickerTrend to set
+	 */
+	public void setTickerTrend(String tickerTrend) {
+		this.tickerTrend = tickerTrend;
+	}
+
+	/**
+	 * @return the targetPrice1y
+	 */
+	public String getTargetPrice1y() {
+		return targetPrice1y;
+	}
+
+	/**
+	 * @param targetPrice1y
+	 *            the targetPrice1y to set
+	 */
+	public void setTargetPrice1y(String targetPrice1y) {
+		this.targetPrice1y = targetPrice1y;
+	}
+
+	/**
+	 * @return the holdingsValue
+	 */
+	public String getHoldingsValue() {
+		return holdingsValue;
+	}
+
+	/**
+	 * @param holdingsValue
+	 *            the holdingsValue to set
+	 */
+	public void setHoldingsValue(String holdingsValue) {
+		this.holdingsValue = holdingsValue;
+	}
+
+	/**
+	 * @return the holdingsValueRealTime
+	 */
+	public String getHoldingsValueRealTime() {
+		return holdingsValueRealTime;
+	}
+
+	/**
+	 * @param holdingsValueRealTime
+	 *            the holdingsValueRealTime to set
+	 */
+	public void setHoldingsValueRealTime(String holdingsValueRealTime) {
+		this.holdingsValueRealTime = holdingsValueRealTime;
+	}
+
+	/**
+	 * @return the weekRange52
+	 */
+	public String getWeekRange52() {
+		return weekRange52;
+	}
+
+	/**
+	 * @param weekRange52
+	 *            the weekRange52 to set
+	 */
+	public void setWeekRange52(String weekRange52) {
+		this.weekRange52 = weekRange52;
+	}
+
+	/**
+	 * @return the daysValueChange
+	 */
+	public String getDaysValueChange() {
+		return daysValueChange;
+	}
+
+	/**
+	 * @param daysValueChange
+	 *            the daysValueChange to set
+	 */
+	public void setDaysValueChange(String daysValueChange) {
+		this.daysValueChange = daysValueChange;
+	}
+
+	/**
+	 * @return the daysValueChangeRealTime
+	 */
+	public String getDaysValueChangeRealTime() {
+		return daysValueChangeRealTime;
+	}
+
+	/**
+	 * @param daysValueChangeRealTime
+	 *            the daysValueChangeRealTime to set
+	 */
+	public void setDaysValueChangeRealTime(String daysValueChangeRealTime) {
+		this.daysValueChangeRealTime = daysValueChangeRealTime;
+	}
+
+	/**
+	 * @return the marketCapitalization
+	 */
+	public String getMarketCapitalization() {
+		return marketCapitalization;
+	}
+
+	/**
+	 * @param marketCapitalization
+	 *            the marketCapitalization to set
+	 */
+	public void setMarketCapitalization(String marketCapitalization) {
+		this.marketCapitalization = marketCapitalization;
+	}
+
+	/**
+	 * @return the marketCapitalizationRealTime
+	 */
+	public String getMarketCapitalizationRealTime() {
+		return marketCapitalizationRealTime;
+	}
+
+	/**
+	 * @param marketCapitalizationRealTime
+	 *            the marketCapitalizationRealTime to set
+	 */
+	public void setMarketCapitalizationRealTime(String marketCapitalizationRealTime) {
+		this.marketCapitalizationRealTime = marketCapitalizationRealTime;
+	}
+
+	/**
+	 * @return the ebitda
+	 */
+	public String getEbitda() {
+		return ebitda;
+	}
+
+	/**
+	 * @param ebitda
+	 *            the ebitda to set
+	 */
+	public void setEbitda(String ebitda) {
+		this.ebitda = ebitda;
+	}
+
+	/**
+	 * @return the changeFrom52wLow
+	 */
+	public String getChangeFrom52wLow() {
+		return changeFrom52wLow;
+	}
+
+	/**
+	 * @param changeFrom52wLow
+	 *            the changeFrom52wLow to set
+	 */
+	public void setChangeFrom52wLow(String changeFrom52wLow) {
+		this.changeFrom52wLow = changeFrom52wLow;
+	}
+
+	/**
+	 * @return the percentChangeFrom52wLow
+	 */
+	public String getPercentChangeFrom52wLow() {
+		return percentChangeFrom52wLow;
+	}
+
+	/**
+	 * @param percentChangeFrom52wLow
+	 *            the percentChangeFrom52wLow to set
+	 */
+	public void setPercentChangeFrom52wLow(String percentChangeFrom52wLow) {
+		this.percentChangeFrom52wLow = percentChangeFrom52wLow;
+	}
+
+	/**
+	 * @return the lastTradeRealTimeWithTime
+	 */
+	public String getLastTradeRealTimeWithTime() {
+		return lastTradeRealTimeWithTime;
+	}
+
+	/**
+	 * @param lastTradeRealTimeWithTime
+	 *            the lastTradeRealTimeWithTime to set
+	 */
+	public void setLastTradeRealTimeWithTime(String lastTradeRealTimeWithTime) {
+		this.lastTradeRealTimeWithTime = lastTradeRealTimeWithTime;
+	}
+
+	/**
+	 * @return the changePercentRealTime
+	 */
+	public String getChangePercentRealTime() {
+		return changePercentRealTime;
+	}
+
+	/**
+	 * @param changePercentRealTime
+	 *            the changePercentRealTime to set
+	 */
+	public void setChangePercentRealTime(String changePercentRealTime) {
+		this.changePercentRealTime = changePercentRealTime;
+	}
+
+	/**
+	 * @return the previousClose
+	 */
+	public String getPreviousClose() {
+		return previousClose;
+	}
+
+	/**
+	 * @param previousClose
+	 *            the previousClose to set
+	 */
+	public void setPreviousClose(String previousClose) {
+		this.previousClose = previousClose;
+	}
+
+	/**
+	 * @return the pricePaid
+	 */
+	public String getPricePaid() {
+		return pricePaid;
+	}
+
+	/**
+	 * @param pricePaid
+	 *            the pricePaid to set
+	 */
+	public void setPricePaid(String pricePaid) {
+		this.pricePaid = pricePaid;
+	}
+
+	/**
+	 * @return the changeInPercent
+	 */
+	public String getChangeInPercent() {
+		return changeInPercent;
+	}
+
+	/**
+	 * @param changeInPercent
+	 *            the changeInPercent to set
+	 */
+	public void setChangeInPercent(String changeInPercent) {
+		this.changeInPercent = changeInPercent;
+	}
+
+	/**
+	 * @return the pricePerSales
+	 */
+	public String getPricePerSales() {
+		return pricePerSales;
+	}
+
+	/**
+	 * @param pricePerSales
+	 *            the pricePerSales to set
+	 */
+	public void setPricePerSales(String pricePerSales) {
+		this.pricePerSales = pricePerSales;
+	}
+
+	/**
+	 * @return the pricePerBook
+	 */
+	public String getPricePerBook() {
+		return pricePerBook;
+	}
+
+	/**
+	 * @param pricePerBook
+	 *            the pricePerBook to set
+	 */
+	public void setPricePerBook(String pricePerBook) {
+		this.pricePerBook = pricePerBook;
+	}
+
+	/**
+	 * @return the exDividendDate
+	 */
+	public String getExDividendDate() {
+		return exDividendDate;
+	}
+
+	/**
+	 * @param exDividendDate
+	 *            the exDividendDate to set
+	 */
+	public void setExDividendDate(String exDividendDate) {
+		this.exDividendDate = exDividendDate;
+	}
+
+	/**
+	 * @return the peRatio
+	 */
+	public String getPeRatio() {
+		return peRatio;
+	}
+
+	/**
+	 * @param peRatio
+	 *            the peRatio to set
+	 */
+	public void setPeRatio(String peRatio) {
+		this.peRatio = peRatio;
+	}
+
+	/**
+	 * @return the dividendPayDate
+	 */
+	public String getDividendPayDate() {
+		return dividendPayDate;
+	}
+
+	/**
+	 * @param dividendPayDate
+	 *            the dividendPayDate to set
+	 */
+	public void setDividendPayDate(String dividendPayDate) {
+		this.dividendPayDate = dividendPayDate;
+	}
+
+	/**
+	 * @return the peRatioRealTime
+	 */
+	public String getPeRatioRealTime() {
+		return peRatioRealTime;
+	}
+
+	/**
+	 * @param peRatioRealTime
+	 *            the peRatioRealTime to set
+	 */
+	public void setPeRatioRealTime(String peRatioRealTime) {
+		this.peRatioRealTime = peRatioRealTime;
+	}
+
+	/**
+	 * @return the pegRatio
+	 */
+	public String getPegRatio() {
+		return pegRatio;
+	}
+
+	/**
+	 * @param pegRatio
+	 *            the pegRatio to set
+	 */
+	public void setPegRatio(String pegRatio) {
+		this.pegRatio = pegRatio;
+	}
+
+	/**
+	 * @return the pricePerepsEstimateCurrentYear
+	 */
+	public String getPricePerepsEstimateCurrentYear() {
+		return pricePerepsEstimateCurrentYear;
+	}
+
+	/**
+	 * @param pricePerepsEstimateCurrentYear
+	 *            the pricePerepsEstimateCurrentYear to set
+	 */
+	public void setPricePerepsEstimateCurrentYear(String pricePerepsEstimateCurrentYear) {
+		this.pricePerepsEstimateCurrentYear = pricePerepsEstimateCurrentYear;
+	}
+
+	/**
+	 * @return the pricePerepsEstimateNextYear
+	 */
+	public String getPricePerepsEstimateNextYear() {
+		return pricePerepsEstimateNextYear;
+	}
+
+	/**
+	 * @param pricePerepsEstimateNextYear
+	 *            the pricePerepsEstimateNextYear to set
+	 */
+	public void setPricePerepsEstimateNextYear(String pricePerepsEstimateNextYear) {
+		this.pricePerepsEstimateNextYear = pricePerepsEstimateNextYear;
 	}
 
 }

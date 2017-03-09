@@ -23,7 +23,6 @@
 	<modules>
 		<module>../butterfly-effect-stocks-frontend-parent</module>
 
-
 		<module>../butterfly-effect-stocks-api-parent</module>
 		
 		<module>../butterfly-effect-stocks-backend-parent</module>

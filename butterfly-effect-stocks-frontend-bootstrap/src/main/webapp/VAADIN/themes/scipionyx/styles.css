@@ -981,7 +981,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "8.0.0";
+	content: "8.0.1";
 }
 
 .v-widget {
@@ -2213,12 +2213,12 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
-.scipionyx .v-button-borderless:active {
+.scipionyx .v-button-borderless:active:not(.v-disabled) {
 	opacity: 0.7;
 	filter: alpha(opacity=70) ;
 }
 
-.scipionyx .v-button-borderless:active:after {
+.scipionyx .v-button-borderless:active:not(.v-disabled):after {
 	background: transparent;
 }
 
@@ -2238,12 +2238,12 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
-.scipionyx .v-button-borderless-colored:active {
+.scipionyx .v-button-borderless-colored:active:not(.v-disabled) {
 	opacity: 0.7;
 	filter: alpha(opacity=70) ;
 }
 
-.scipionyx .v-button-borderless-colored:active:after {
+.scipionyx .v-button-borderless-colored:active:not(.v-disabled):after {
 	background: transparent;
 }
 
@@ -2282,12 +2282,12 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
-.scipionyx .v-button-link:active {
+.scipionyx .v-button-link:active:not(.v-disabled) {
 	opacity: 0.7;
 	filter: alpha(opacity=70) ;
 }
 
-.scipionyx .v-button-link:active:after {
+.scipionyx .v-button-link:active:not(.v-disabled):after {
 	background: transparent;
 }
 

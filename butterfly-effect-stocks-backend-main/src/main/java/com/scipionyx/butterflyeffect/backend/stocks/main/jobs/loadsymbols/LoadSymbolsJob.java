@@ -85,7 +85,7 @@ public class LoadSymbolsJob extends AbstractJobDefinition {
 	@Bean("jobStockImportSymbols_Step01")
 	public Step step1(@Qualifier("jobStockImportSymbols_Step01_Reader") ItemReader<Stock> reader,
 			@Qualifier("jobStockImportSymbols_Step01_Processor") ItemProcessor<Stock, Stock> processor,
-			ItemWriter<Stock> itemWriter) throws MalformedURLException {
+			@Qualifier("SimpleJpaWriter") ItemWriter<Stock> itemWriter) throws MalformedURLException {
 
 		return stepBuilderFactory. //
 				get("step1").<Stock, Stock>chunk(1000).//

@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.loadRealTimeData;
+package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.loadrealtimedata;
 
 import java.util.Calendar;
 
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  */
 @RestController
-public class LoadRealtimeDataController {
+public class LoadRealTimeDataController {
 
 	@Autowired(required = true)
 	private JobLauncher jobLauncher;
@@ -38,11 +38,13 @@ public class LoadRealtimeDataController {
 	 * @throws Exception
 	 */
 	@RequestMapping(method = { RequestMethod.PUT }, path = "/stock/jobLoadRealTimeData")
-	public String run(@RequestParam(name = "symbol", required = true) String symbol) throws Exception {
+	public String run(@RequestParam(name = "symbol", required = false) String symbol,
+			@RequestParam(name = "exchange", required = false) String exchange) throws Exception {
 		//
 		JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
 		jobParametersBuilder.addLong("timestamp", Calendar.getInstance().getTimeInMillis());
 		jobParametersBuilder.addString("symbol", symbol);
+		jobParametersBuilder.addString("exchange", exchange);
 
 		//
 		JobParameters jobParameters = jobParametersBuilder.toJobParameters();

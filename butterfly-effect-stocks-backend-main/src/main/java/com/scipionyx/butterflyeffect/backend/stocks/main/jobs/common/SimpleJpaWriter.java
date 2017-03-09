@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  *
  * @param <T>
  */
-@Component
+@Component(value = "SimpleJpaWriter")
 public class SimpleJpaWriter<T> extends JpaItemWriter<T> {
 
 	@Override

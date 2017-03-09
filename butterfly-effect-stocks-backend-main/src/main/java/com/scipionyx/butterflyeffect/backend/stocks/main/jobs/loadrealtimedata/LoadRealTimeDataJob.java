@@ -1,16 +1,27 @@
-package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.loadRealTimeData;
+package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.loadrealtimedata;
 
 import java.beans.PropertyEditor;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.hibernate.annotations.QueryHints;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -28,13 +39,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.AbstractJobDefinition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition.Parameter;
 import com.scipionyx.butterflyeffect.api.stocks.model.Data;
+import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
 import com.scipionyx.butterflyeffect.api.stocks.model.YahooData;
 
 /**
@@ -50,8 +62,9 @@ import com.scipionyx.butterflyeffect.api.stocks.model.YahooData;
 		description = "This job will load all the symbols from the internet for a specific market", //
 		instuctions = "provide the name of the markert", //
 		category = "Stocks", service = "LoadRealTimeData", //
-		restController = LoadRealtimeDataController.class, //
-		parameters = { @Parameter(name = "symbol", type = String.class) })
+		restController = LoadRealTimeDataController.class, //
+		parameters = { @Parameter(name = "symbol", type = String.class),
+				@Parameter(name = "exchange", type = String.class) })
 public class LoadRealTimeDataJob extends AbstractJobDefinition {
 
 	/**
@@ -59,7 +72,11 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	@PersistenceContext()
+	private EntityManager entityManager;
+
 	/**
+	 * 
 	 * 
 	 * @return
 	 * @throws MalformedURLException
@@ -83,7 +100,7 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	@Bean("jobLoadRealTimeData_Step01")
 	public Step step1(@Qualifier("jobLoadRealTimeData_Step01_Reader") ItemReader<Data> reader,
 			@Qualifier("jobLoadRealTimeData_Step01_Processor") ItemProcessor<Data, Data> processor,
-			@Qualifier("jobLoadRealTimeData_Step01_writer") ItemWriter<Data> itemWriter) throws MalformedURLException {
+			@Qualifier("SimpleElasticsearchWriter") ItemWriter<Data> itemWriter) throws MalformedURLException {
 
 		return stepBuilderFactory. //
 				get("step1").<Data, Data>chunk(1000).//
@@ -97,13 +114,14 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	/**
 	 * 
 	 * @return
-	 * @throws MalformedURLException
 	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	@Bean("jobLoadRealTimeData_Step01_Reader")
 	@StepScope
-	public FlatFileItemReader<Data> reader(@Value("#{jobParameters['symbol']}") String symbol)
-			throws MalformedURLException, URISyntaxException {
+	public FlatFileItemReader<Data> reader(@Value("#{jobParameters['symbol']}") String symbol,
+			@Value("#{jobParameters['exchange']}") String exchange) throws URISyntaxException, IOException {
 
 		// Calculate tokenizers
 		Field[] declaredFields = Data.class.getDeclaredFields();
@@ -157,13 +175,46 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 			}
 		};
 
-		// Defining the reader
+		// Calculate the list of symbols that will be loaded
+		final List<String> synmbols = new ArrayList<>();
+		if (exchange != null) {
+			Query query = entityManager.createQuery("from Stock s where s.exchange.code = :code")
+					.setHint(QueryHints.READ_ONLY, Boolean.TRUE).setHint(QueryHints.CACHEABLE, Boolean.TRUE)
+					.setParameter("code", exchange);
+			((List<Stock>) query.getResultList()).forEach(stock -> synmbols.add(stock.getSymbol()));
+		} else if (symbol.contains(",")) {
+			synmbols.addAll(Arrays.asList(symbol.split(",")));
+		}
 
+		int size = 10;
+		List<String> queries = new ArrayList<>();
+		for (String stockSymbol : synmbols) {
+
+		}
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		FlatFileItemReader<Data> reader = new FlatFileItemReader<Data>();
-		URI uri = new URI("http://finance.yahoo.com/d/quotes.csv");
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri).queryParam("s", symbol).queryParam("f",
-				queryCode.toString());
-		reader.setResource(new UrlResource(builder.build().toUri()));
+		
+		for (String string : queries) {
+
+			
+			URI uri = new URI("http://finance.yahoo.com/d/quotes.csv");
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri).queryParam("s", string).queryParam("f",
+					queryCode.toString());
+
+			// Read
+			InputStream openStream = builder.build().toUri().toURL().openStream();
+			BufferedInputStream bufferedInputStream = new BufferedInputStream(openStream);
+			byte[] buffer = new byte[bufferedInputStream.available()];
+			bufferedInputStream.read(buffer);
+
+			// Write
+			byteArrayOutputStream.write(buffer);
+			
+		}
+
+		// Set the reader
+		reader.setResource(new ByteArrayResource(byteArrayOutputStream.toByteArray()));
 		reader.setLineMapper(mapper);
 
 		return reader;
@@ -177,10 +228,23 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	@StepScope
 	public ItemProcessor<Data, Data> getProcessor() {
 
-		ItemProcessor<Data, Data> itemProcessor = new ItemProcessor<Data, Data>() {
+		final ItemProcessor<Data, Data> itemProcessor = new ItemProcessor<Data, Data>() {
 
+			private final Calendar now = Calendar.getInstance();
+
+			private final long initial = now.getTimeInMillis() * 1000000;
+
+			private final AtomicLong ATOMIC_INTEGER = new AtomicLong(initial);
+
+			/**
+			 * 
+			 */
 			@Override
 			public Data process(Data item) throws Exception {
+				//
+				item.setRead(now.getTime());
+				item.setId(ATOMIC_INTEGER.getAndIncrement());
+
 				return item;
 			}
 		};
@@ -190,25 +254,6 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 		compositeItemProcessor.setDelegates(Arrays.asList(itemProcessor));
 
 		return compositeItemProcessor;
-
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	@Bean(name = "jobLoadRealTimeData_Step01_writer")
-	@StepScope
-	public ItemWriter<Data> getWriter() {
-
-		ItemWriter<Data> itemWriter = new ItemWriter<Data>() {
-
-			@Override
-			public void write(List<? extends Data> items) throws Exception {
-			}
-		};
-
-		return itemWriter;
 
 	}
 

@@ -79,7 +79,7 @@ public class LoadExchangeJob extends AbstractJobDefinition {
 	@Bean("jobExchangeImport_Step01")
 	public Step step1(@Qualifier("jobExchangeImport_Step01_Reader") ItemReader<Exchange> reader,
 			@Qualifier("jobExchangeImport_Step01_Processor") ItemProcessor<Exchange, Exchange> processor,
-			ItemWriter<Exchange> itemWriter) throws MalformedURLException {
+			@Qualifier("SimpleJpaWriter") ItemWriter<Exchange> itemWriter) throws MalformedURLException {
 
 		return stepBuilderFactory. //
 				get("step1").<Exchange, Exchange>chunk(1000).//
