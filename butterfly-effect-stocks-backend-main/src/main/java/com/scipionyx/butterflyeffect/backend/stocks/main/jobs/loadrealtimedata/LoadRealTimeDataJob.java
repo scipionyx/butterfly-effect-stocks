@@ -187,17 +187,35 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 		}
 
 		int size = 10;
+		int i = 0;
 		List<String> queries = new ArrayList<>();
+		StringBuffer query = null;
 		for (String stockSymbol : synmbols) {
 
+			if (query == null) {
+				query = new StringBuffer(stockSymbol);
+			} else {
+				query.append("+").append(stockSymbol);
+			}
+
+			i++;
+			if (i == size) {
+				queries.add(query.toString());
+				query = null;
+				i = 0;
+			}
+
+		}
+
+		if (query != null) {
+			queries.add(query.toString());
 		}
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		FlatFileItemReader<Data> reader = new FlatFileItemReader<Data>();
-		
+
 		for (String string : queries) {
 
-			
 			URI uri = new URI("http://finance.yahoo.com/d/quotes.csv");
 			UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri).queryParam("s", string).queryParam("f",
 					queryCode.toString());
@@ -210,7 +228,7 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 
 			// Write
 			byteArrayOutputStream.write(buffer);
-			
+
 		}
 
 		// Set the reader

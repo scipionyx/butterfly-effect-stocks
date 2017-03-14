@@ -15,6 +15,9 @@
 	<modules>
 		<module>../butterfly-effect-stocks-frontend-bootstrap</module>
 		<module>../butterfly-effect-stocks-frontend-main</module>
+		<module>
+			../butterfly-effect-stocks-frontend-distribuition
+		</module>
 	</modules>
 
 	<build>

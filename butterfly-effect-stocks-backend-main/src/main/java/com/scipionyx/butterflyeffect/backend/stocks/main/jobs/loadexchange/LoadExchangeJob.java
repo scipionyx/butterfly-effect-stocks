@@ -66,7 +66,7 @@ public class LoadExchangeJob extends AbstractJobDefinition {
 				get("STOCK_IMPORT_EXCHANGE"). //
 				incrementer(new RunIdIncrementer()). //
 				flow(step). //
-				end(). //
+				end(). // 
 				build();
 
 	}

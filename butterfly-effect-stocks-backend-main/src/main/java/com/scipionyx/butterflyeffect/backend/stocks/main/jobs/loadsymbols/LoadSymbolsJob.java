@@ -208,7 +208,7 @@ public class LoadSymbolsJob extends AbstractJobDefinition {
 	public UpdateItemProcessor<Stock> updateProcessor(EntityManagerFactory entityManagerFactory)
 			throws ClassNotFoundException {
 
-		Assert.notNull(entityManagerFactory);
+		Assert.notNull(entityManagerFactory, "Entity Manager should not be null");
 
 		UpdateItemProcessor<Stock> updateProcessor = new UpdateItemProcessor<>(entityManagerFactory);
 		updateProcessor.addExpression("from Stock a where a.symbol = :symbol", "symbol=symbol");
@@ -230,7 +230,7 @@ public class LoadSymbolsJob extends AbstractJobDefinition {
 	@StepScope
 	public LookupItemProcessor<Stock> lookupProcessor(EntityManagerFactory entityManagerFactory) {
 
-		Assert.notNull(entityManagerFactory);
+		Assert.notNull(entityManagerFactory, "Entity Manager should not be null");
 
 		LookupItemProcessor<Stock> updateProcessor = new LookupItemProcessor<>(entityManagerFactory);
 		Map<String, String> hqlExpressions = new HashMap<>();
