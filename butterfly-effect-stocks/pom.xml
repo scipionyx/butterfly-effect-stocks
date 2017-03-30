@@ -27,4 +27,9 @@
 		
 		<module>../butterfly-effect-stocks-backend-parent</module>
 	</modules>
+	<properties>
+		<build.images>false</build.images>
+		<push.images>false</push.images>
+		<skip.docker>true</skip.docker>
+	</properties>
 </project>

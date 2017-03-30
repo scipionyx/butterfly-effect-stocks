@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view;
+package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.strategyhub;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -28,8 +28,8 @@ import com.vaadin.ui.VerticalLayout;
 @MenuConfiguration(position = com.scipionyx.butterflyeffect.ui.view.MenuConfiguration.Position.TOP_MAIN, label = "Strategy", group = "", order = 1, icon = VaadinIcons.MONEY_EXCHANGE)
 
 //
-@Configurable(value = PortfolioView.VIEW_NAME)
-@Title(value = PortfolioView.WINDOW_CAPTION)
+@Configurable(value = StrategyHubView.VIEW_NAME)
+@Title(value = StrategyHubView.WINDOW_CAPTION)
 public class StrategyHubView extends AbstractView {
 
 	/**
@@ -48,10 +48,15 @@ public class StrategyHubView extends AbstractView {
 	public void doBuildWorkArea(VerticalLayout workArea) throws Exception {
 
 		// My Strategies
+		MyStrategies myStrategies = (new MyStrategies()).build();
+		MyStrategyRank myStrategyRank = (new MyStrategyRank()).build();
+
 		// Strategy rank
 		// My Friends Strategies
 		// Bookmark
 		// Search
+
+		workArea.addComponents(myStrategies, myStrategyRank);
 
 	}
 

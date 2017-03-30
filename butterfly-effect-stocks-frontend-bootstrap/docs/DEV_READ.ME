@@ -1,0 +1,11 @@
+How to Create a Demo Environment using Docker:
+
+For the Front End
+
+docker run -p 6379:6379 --name ScipionyxRedis redis
+docker run -p 8500:8500 --name ScipionyxRedis consul
+
+
+# docker run -p 3306:3306 --name ScipionyxDB mariadb
+# docker run -p 9300:9300 --name ScipionyxES elasticsearch:2.1
+

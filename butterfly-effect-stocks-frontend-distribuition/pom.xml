@@ -93,13 +93,13 @@
 						<imageTag>latest</imageTag>
 					</imageTags>
 
-					<pushImage>true</pushImage>
+					<pushImage>${push.image}</pushImage>
 
 					<retryPushCount>1</retryPushCount>
 
 					<squashRunCommands>true</squashRunCommands>
 
-					<skipDocker>false</skipDocker>
+					<skipDocker>${skip.docker}</skipDocker>
 
 				</configuration>
 
