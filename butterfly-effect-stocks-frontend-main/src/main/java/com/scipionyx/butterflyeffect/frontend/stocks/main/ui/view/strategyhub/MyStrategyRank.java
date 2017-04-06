@@ -1,10 +1,10 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.strategyhub;
 
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.renderers.TextRenderer;
+import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.ScipionyxPanel;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
 
-public class MyStrategyRank extends Panel {
+public class MyStrategyRank extends ScipionyxPanel {
 
 	/**
 	 * 
@@ -14,18 +14,16 @@ public class MyStrategyRank extends Panel {
 	/**
 	 * 
 	 */
-	public MyStrategyRank build() {
+	public void doBuild() {
+		setCaption("Rank");
+		addButton(VaadinIcons.REFRESH, new Button("", event -> refresh()));
+	}
 
-		this.setCaption("My Strategies Rank");
+	/**
+	 * 
+	 */
+	private void refresh() {
 
-		Grid<Object> grid = new Grid<>();
-
-		grid.addColumn("Test", new TextRenderer());
-		grid.addColumn("Test", new TextRenderer());
-
-		this.setContent(grid);
-
-		return this;
 	}
 
 }

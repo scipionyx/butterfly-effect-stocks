@@ -32,6 +32,11 @@
 			<artifactId>butterfly-effect-stocks-api-main</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>com.scipionyx</groupId>
+			<artifactId>butterfly-effect-frontend-chartjs</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 </project>

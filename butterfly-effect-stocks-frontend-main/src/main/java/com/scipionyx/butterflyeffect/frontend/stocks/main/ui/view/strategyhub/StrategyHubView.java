@@ -11,6 +11,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -48,15 +49,15 @@ public class StrategyHubView extends AbstractView {
 	public void doBuildWorkArea(VerticalLayout workArea) throws Exception {
 
 		// My Strategies
-		MyStrategies myStrategies = (new MyStrategies()).build();
-		MyStrategyRank myStrategyRank = (new MyStrategyRank()).build();
+		MyStrategies myStrategies = (MyStrategies) (new MyStrategies()).build();
+		MyStrategyRank myStrategyRank = (MyStrategyRank) (new MyStrategyRank()).build();
+		HorizontalLayout horizontalLayout = new HorizontalLayout(myStrategies, myStrategyRank);
+		horizontalLayout.setSizeFull();
 
-		// Strategy rank
-		// My Friends Strategies
-		// Bookmark
-		// Search
+		HorizontalLayout horizontalLayout_2 = new HorizontalLayout(myStrategies, myStrategyRank);
+		horizontalLayout_2.setSizeFull();
 
-		workArea.addComponents(myStrategies, myStrategyRank);
+		workArea.addComponents(horizontalLayout, horizontalLayout_2);
 
 	}
 

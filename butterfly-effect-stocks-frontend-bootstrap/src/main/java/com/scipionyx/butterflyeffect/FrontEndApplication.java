@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableSpringConfigured
 @EnableLoadTimeWeaving(aspectjWeaving = AspectJWeaving.ENABLED)
 @EnableAspectJAutoProxy(exposeProxy = true, proxyTargetClass = true)
+
 public class FrontEndApplication {
 
 	/**

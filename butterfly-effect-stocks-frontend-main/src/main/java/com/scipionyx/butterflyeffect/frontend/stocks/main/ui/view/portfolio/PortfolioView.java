@@ -1,4 +1,4 @@
-package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view;
+package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.portfolio;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
