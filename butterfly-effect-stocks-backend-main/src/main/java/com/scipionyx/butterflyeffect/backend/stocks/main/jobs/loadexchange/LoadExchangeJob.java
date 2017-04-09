@@ -30,7 +30,7 @@ import com.neovisionaries.i18n.CountryCode;
 import com.neovisionaries.i18n.CurrencyCode;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.AbstractJobDefinition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition;
-import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
+import com.scipionyx.butterflyeffect.api.stocks.model.market.Exchange;
 import com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common.UpdateItemProcessor;
 
 /**

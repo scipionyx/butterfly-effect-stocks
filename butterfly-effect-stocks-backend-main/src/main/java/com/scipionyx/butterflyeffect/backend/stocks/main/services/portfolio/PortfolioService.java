@@ -3,7 +3,7 @@ package com.scipionyx.butterflyeffect.backend.stocks.main.services.portfolio;
 import org.springframework.stereotype.Component;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.server.data.AbstractDataAccessService;
-import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
+import com.scipionyx.butterflyeffect.api.stocks.model.portfolio.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.services.portfolio.IPortfolioRepository;
 
 /**

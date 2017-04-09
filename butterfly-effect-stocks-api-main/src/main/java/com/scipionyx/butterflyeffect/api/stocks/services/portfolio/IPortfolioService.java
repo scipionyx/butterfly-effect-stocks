@@ -1,7 +1,7 @@
 package com.scipionyx.butterflyeffect.api.stocks.services.portfolio;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.server.IService;
-import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
+import com.scipionyx.butterflyeffect.api.stocks.model.portfolio.Portfolio;
 
 /**
  * 

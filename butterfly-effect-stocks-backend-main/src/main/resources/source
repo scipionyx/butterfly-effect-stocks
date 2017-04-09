@@ -14,3 +14,8 @@ NASDAQ
 javascript:getQuotes(true);
 
 https://ichart.finance.yahoo.com/table.csv?d=6&e=1&f=2018&g=d&a=7&b=19&c=1999&ignore=.csv&s=EPAY
+
+Bitcoins
+
+complete history
+http://api.bitcoincharts.com/v1/csv/

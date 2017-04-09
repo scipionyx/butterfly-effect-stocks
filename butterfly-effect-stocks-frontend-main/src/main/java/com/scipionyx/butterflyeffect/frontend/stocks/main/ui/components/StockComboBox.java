@@ -1,6 +1,6 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.components;
 
-import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Stock;
 import com.vaadin.ui.ComboBox;
 
 /**

@@ -34,8 +34,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.AbstractJobDefinition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition.Parameter;
-import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
-import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
+import com.scipionyx.butterflyeffect.api.stocks.model.market.Exchange;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Stock;
 import com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common.LookupItemProcessor;
 import com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common.UpdateItemProcessor;
 
@@ -53,7 +53,7 @@ import com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common.UpdateItemP
 		instuctions = "provide the name of the markert", //
 		category = "Stocks", service = "LoadStocksJob", //
 		restController = LoadSymbolsController.class, //
-		parameters = { @Parameter(name = "exchange", type = Exchange.class) })
+		parameters = { @Parameter(name = "exchange", type = Exchange.class, description = "") })
 public class LoadSymbolsJob extends AbstractJobDefinition {
 
 	/**

@@ -1,7 +1,7 @@
 package com.scipionyx.butterflyeffect.api.stocks.services.exchange;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.server.IService;
-import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
+import com.scipionyx.butterflyeffect.api.stocks.model.market.Exchange;
 
 /**
  * 

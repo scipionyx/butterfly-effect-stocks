@@ -17,6 +17,19 @@ class ResearchTabSheet extends TabSheet {
 	 */
 	public void build() {
 		setSizeFull();
+		addSelectedTabChangeListener(new TabSheet.SelectedTabChangeListener() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent event) {
+				HorizontalLayout selectedTab = (HorizontalLayout) event.getTabSheet().getSelectedTab();
+				((ResearchChart) selectedTab.getComponent(1)).refresh();
+			}
+		});
 	}
 
 	/**
@@ -37,11 +50,12 @@ class ResearchTabSheet extends TabSheet {
 		layout.setMargin(true);
 		layout.setSpacing(true);
 		layout.setExpandRatio(detail, 1);
-		layout.setExpandRatio(chart, 3);
+		layout.setExpandRatio(chart, 4);
 
 		//
 		Tab tab = this.addTab(layout, research.getName());
 		tab.setClosable(true);
+		this.setSelectedTab(tab);
 
 	}
 

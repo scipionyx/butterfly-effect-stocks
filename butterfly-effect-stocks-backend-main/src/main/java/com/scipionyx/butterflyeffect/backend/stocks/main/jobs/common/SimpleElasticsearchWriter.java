@@ -3,9 +3,7 @@ package com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common;
 import java.util.List;
 
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.stereotype.Component;
 
 /**
  * 
@@ -13,11 +11,18 @@ import org.springframework.stereotype.Component;
  *
  * @param <T>
  */
-@Component(value = "SimpleElasticsearchWriter")
 public class SimpleElasticsearchWriter<ENTITY> implements ItemWriter<ENTITY> {
 
-	@Autowired(required = true)
 	private ElasticsearchRepository<ENTITY, Long> service;
+
+	/**
+	 * 
+	 * @param service
+	 */
+	public SimpleElasticsearchWriter(ElasticsearchRepository<ENTITY, Long> service) {
+		super();
+		this.service = service;
+	}
 
 	/**
 	 * 

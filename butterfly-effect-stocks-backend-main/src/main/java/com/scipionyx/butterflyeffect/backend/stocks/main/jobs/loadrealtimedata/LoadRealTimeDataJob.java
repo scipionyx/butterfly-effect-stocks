@@ -34,20 +34,23 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.CompositeItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.AbstractJobDefinition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition;
 import com.scipionyx.butterflyeffect.api.jobmanagement.api.model.definition.Definition.Parameter;
-import com.scipionyx.butterflyeffect.api.stocks.model.Data;
-import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
 import com.scipionyx.butterflyeffect.api.stocks.model.YahooData;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Stock;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.data.historicalprice.StockPrice;
+import com.scipionyx.butterflyeffect.backend.stocks.main.jobs.common.SimpleElasticsearchWriter;
 
 /**
  * 
@@ -63,8 +66,8 @@ import com.scipionyx.butterflyeffect.api.stocks.model.YahooData;
 		instuctions = "provide the name of the markert", //
 		category = "Stocks", service = "LoadRealTimeData", //
 		restController = LoadRealTimeDataController.class, //
-		parameters = { @Parameter(name = "symbol", type = String.class),
-				@Parameter(name = "exchange", type = String.class) })
+		parameters = { @Parameter(name = "symbol", type = String.class, description = ""),
+				@Parameter(name = "exchange", type = String.class, description = "") })
 public class LoadRealTimeDataJob extends AbstractJobDefinition {
 
 	/**
@@ -98,15 +101,16 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	 * @throws MalformedURLException
 	 */
 	@Bean("jobLoadRealTimeData_Step01")
-	public Step step1(@Qualifier("jobLoadRealTimeData_Step01_Reader") ItemReader<Data> reader,
-			@Qualifier("jobLoadRealTimeData_Step01_Processor") ItemProcessor<Data, Data> processor,
-			@Qualifier("SimpleElasticsearchWriter") ItemWriter<Data> itemWriter) throws MalformedURLException {
+	public Step step1(@Qualifier("jobLoadRealTimeData_Step01_Reader") ItemReader<StockPrice> reader,
+			@Qualifier("jobLoadRealTimeData_Step01_Processor") ItemProcessor<StockPrice, StockPrice> processor,
+			@Qualifier("jobLoadRealTimeData_Step01_Writer") ItemWriter<StockPrice> writer)
+			throws MalformedURLException {
 
 		return stepBuilderFactory. //
-				get("step1").<Data, Data>chunk(1000).//
+				get("step1").<StockPrice, StockPrice>chunk(1000).//
 				reader(reader).//
 				processor(processor).//
-				writer(itemWriter).//
+				writer(writer).//
 				build();
 
 	}
@@ -120,11 +124,11 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	@SuppressWarnings("unchecked")
 	@Bean("jobLoadRealTimeData_Step01_Reader")
 	@StepScope
-	public FlatFileItemReader<Data> reader(@Value("#{jobParameters['symbol']}") String symbol,
+	public FlatFileItemReader<StockPrice> reader(@Value("#{jobParameters['symbol']}") String symbol,
 			@Value("#{jobParameters['exchange']}") String exchange) throws URISyntaxException, IOException {
 
 		// Calculate tokenizers
-		Field[] declaredFields = Data.class.getDeclaredFields();
+		Field[] declaredFields = StockPrice.class.getDeclaredFields();
 		List<String> fieldNames = new ArrayList<>();
 		List<String> queryCodes = new ArrayList<>();
 		for (Field field : declaredFields) {
@@ -159,16 +163,16 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 		});
 
 		//
-		BeanWrapperFieldSetMapper<Data> fieldSet = new BeanWrapperFieldSetMapper<Data>() {
+		BeanWrapperFieldSetMapper<StockPrice> fieldSet = new BeanWrapperFieldSetMapper<StockPrice>() {
 			{
-				setTargetType(Data.class);
+				setTargetType(StockPrice.class);
 				setStrict(true);
 				setCustomEditors(customEditors);
 			}
 		};
 
 		//
-		DefaultLineMapper<Data> mapper = new DefaultLineMapper<Data>() {
+		DefaultLineMapper<StockPrice> mapper = new DefaultLineMapper<StockPrice>() {
 			{
 				setLineTokenizer(tokenizer);
 				setFieldSetMapper(fieldSet);
@@ -212,7 +216,7 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 		}
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		FlatFileItemReader<Data> reader = new FlatFileItemReader<Data>();
+		FlatFileItemReader<StockPrice> reader = new FlatFileItemReader<StockPrice>();
 
 		for (String string : queries) {
 
@@ -244,9 +248,9 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 	 */
 	@Bean(name = "jobLoadRealTimeData_Step01_Processor")
 	@StepScope
-	public ItemProcessor<Data, Data> getProcessor() {
+	public ItemProcessor<StockPrice, StockPrice> getProcessor() {
 
-		final ItemProcessor<Data, Data> itemProcessor = new ItemProcessor<Data, Data>() {
+		final ItemProcessor<StockPrice, StockPrice> itemProcessor = new ItemProcessor<StockPrice, StockPrice>() {
 
 			private final Calendar now = Calendar.getInstance();
 
@@ -258,7 +262,7 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 			 * 
 			 */
 			@Override
-			public Data process(Data item) throws Exception {
+			public StockPrice process(StockPrice item) throws Exception {
 				//
 				item.setRead(now.getTime());
 				item.setId(ATOMIC_INTEGER.getAndIncrement());
@@ -268,11 +272,23 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 		};
 
 		//
-		CompositeItemProcessor<Data, Data> compositeItemProcessor = new CompositeItemProcessor<>();
+		CompositeItemProcessor<StockPrice, StockPrice> compositeItemProcessor = new CompositeItemProcessor<>();
 		compositeItemProcessor.setDelegates(Arrays.asList(itemProcessor));
 
 		return compositeItemProcessor;
 
+	}
+
+	/**
+	 * 
+	 * @param repository
+	 * @return
+	 */
+	@Bean(name = "jobLoadRealTimeData_Step01_Writer")
+	public ItemWriter<StockPrice> writer(
+			@Autowired(required = true) ElasticsearchRepository<StockPrice, Long> repository) {
+		SimpleElasticsearchWriter<StockPrice> writer = new SimpleElasticsearchWriter<>(repository);
+		return writer;
 	}
 
 }

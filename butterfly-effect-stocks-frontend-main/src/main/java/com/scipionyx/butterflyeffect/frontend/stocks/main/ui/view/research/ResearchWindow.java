@@ -68,6 +68,7 @@ public class ResearchWindow extends Window {
 
 		TextField nameTF = new TextField("Name");
 		binder.forField(nameTF).asRequired("Research name is required").bind(Research::getName, Research::setName);
+		nameTF.focus();
 
 		TextArea descriptionTF = new TextArea("Description");
 		binder.forField(descriptionTF).bind(Research::getDescription, Research::setDescription);

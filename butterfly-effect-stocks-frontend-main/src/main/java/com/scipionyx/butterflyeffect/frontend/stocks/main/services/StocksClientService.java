@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.client.AbstractRESTClientWithCrudService;
 import com.scipionyx.butterflyeffect.api.infrastructure.services.server.RESTService;
-import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Stock;
 
 /**
  * 

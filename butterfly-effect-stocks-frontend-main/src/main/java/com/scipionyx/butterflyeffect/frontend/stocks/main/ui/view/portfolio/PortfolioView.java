@@ -14,10 +14,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.client.RestClientException;
 
-import com.scipionyx.butterflyeffect.api.stocks.model.Exchange;
-import com.scipionyx.butterflyeffect.api.stocks.model.Portfolio;
-import com.scipionyx.butterflyeffect.api.stocks.model.Position;
-import com.scipionyx.butterflyeffect.api.stocks.model.Stock;
+import com.scipionyx.butterflyeffect.api.stocks.model.market.Exchange;
+import com.scipionyx.butterflyeffect.api.stocks.model.portfolio.Portfolio;
+import com.scipionyx.butterflyeffect.api.stocks.model.portfolio.Position;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Stock;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.AbstractView;
 import com.scipionyx.butterflyeffect.frontend.stocks.main.services.ExchangeClientService;
 import com.scipionyx.butterflyeffect.frontend.stocks.main.services.PortfolioClientService;

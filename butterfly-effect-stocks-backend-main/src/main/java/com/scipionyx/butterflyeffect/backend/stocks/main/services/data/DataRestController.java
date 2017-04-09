@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.server.controller.AbstractElasticsearchRestController;
-import com.scipionyx.butterflyeffect.api.stocks.model.Data;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.data.historicalprice.StockPrice;
 
 /**
  *
@@ -15,6 +15,6 @@ import com.scipionyx.butterflyeffect.api.stocks.model.Data;
  */
 @RestController()
 @RequestMapping("REST_SERVICES/scipionyx/stocks/data/v1.0")
-public class DataRestController extends AbstractElasticsearchRestController<DataService, Data> {
+public class DataRestController extends AbstractElasticsearchRestController<DataService, StockPrice> {
 
 }

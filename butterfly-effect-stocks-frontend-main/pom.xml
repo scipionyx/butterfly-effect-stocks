@@ -33,9 +33,9 @@
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.scipionyx</groupId>
-			<artifactId>butterfly-effect-frontend-chartjs</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<groupId>vaadin-chartjs-addon</groupId>
+			<artifactId>vaadin-chartjs</artifactId>
+			<version>0.4.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

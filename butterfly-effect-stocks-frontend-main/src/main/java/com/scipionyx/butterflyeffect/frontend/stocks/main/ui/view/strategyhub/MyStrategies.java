@@ -1,6 +1,6 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.strategyhub;
 
-import com.scipionyx.butterflyeffect.api.stocks.model.Strategy;
+import com.scipionyx.butterflyeffect.api.stocks.model.strategy.Strategy;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.ScipionyxPanel;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
