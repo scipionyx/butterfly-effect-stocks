@@ -265,7 +265,7 @@ public class LoadRealTimeDataJob extends AbstractJobDefinition {
 			public StockPrice process(StockPrice item) throws Exception {
 				//
 				item.setRead(now.getTime());
-				item.setId(ATOMIC_INTEGER.getAndIncrement());
+				item.setId(ATOMIC_INTEGER.incrementAndGet());
 
 				return item;
 			}

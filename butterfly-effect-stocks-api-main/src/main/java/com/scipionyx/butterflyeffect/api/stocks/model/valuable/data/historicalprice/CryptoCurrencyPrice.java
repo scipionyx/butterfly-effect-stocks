@@ -2,7 +2,14 @@ package com.scipionyx.butterflyeffect.api.stocks.model.valuable.data.historicalp
 
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName = "s_crypto_currency_data", shards = 3, createIndex = true, replicas = 2)
+/**
+ * 
+ * 
+ * 
+ * @author Renato Mendes - rmendes@bottomline.com / renato.mendes.1123@gmail.com
+ *
+ */
+@Document(indexName = "s_crypto_currency_data", createIndex = true)
 public class CryptoCurrencyPrice extends HistoricalPrice {
 
 	/**
