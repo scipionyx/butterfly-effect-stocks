@@ -1,10 +1,12 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.research;
 
 import com.scipionyx.butterflyeffect.api.stocks.model.research.Research;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Valuable;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.ScipionyxPanel;
 import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -49,6 +51,10 @@ public class ResearchDetail extends ScipionyxPanel {
 
 		TextArea descriptionTF = new TextArea("Description");
 		binder.forField(descriptionTF).bind(Research::getDescription, Research::setDescription);
+
+		ComboBox<Valuable> valuableCB = new ComboBox<>("Valuable");
+		valuableCB.setRequiredIndicatorVisible(true);
+		binder.forField(valuableCB).bind(Research::getValuable, Research::setValuable);
 
 		TextField userTF = new TextField("User");
 		userTF.setReadOnly(true);

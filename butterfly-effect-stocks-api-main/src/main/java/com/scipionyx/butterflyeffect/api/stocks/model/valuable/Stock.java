@@ -51,24 +51,6 @@ public class Stock extends Valuable implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Exchange.class)
 	private Exchange exchange;
 
-	/**
-	 * 
-	 * @param symbol
-	 */
-	public Stock(String symbol) {
-		super(symbol);
-	}
-
-	/**
-	 * 
-	 * @param symbol
-	 * @param name
-	 */
-	public Stock(String symbol, String name) {
-		super(symbol);
-		setName(name);
-	}
-
 	public Double getLastSale() {
 		return lastSale;
 	}

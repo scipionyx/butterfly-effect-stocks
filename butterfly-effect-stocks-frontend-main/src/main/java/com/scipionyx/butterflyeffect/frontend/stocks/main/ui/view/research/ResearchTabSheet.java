@@ -1,9 +1,19 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.research;
 
+import java.util.List;
+
 import com.scipionyx.butterflyeffect.api.stocks.model.research.Research;
+import com.scipionyx.butterflyeffect.frontend.stocks.main.services.ResearchClientService;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TabSheet;
 
+/**
+ * 
+ * 
+ * 
+ * @author Renato Mendes - rmendes@bottomline.com / renato.mendes.1123@gmail.com
+ *
+ */
 class ResearchTabSheet extends TabSheet {
 
 	/**
@@ -15,8 +25,13 @@ class ResearchTabSheet extends TabSheet {
 	 * 
 	 * 
 	 */
-	public void build() {
+	public void build(ResearchClientService service) {
 		setSizeFull();
+
+		// Add all existing tabs;
+		List<Research> findAll = service.findAll();
+		findAll.forEach(r -> addTab(r));
+
 		addSelectedTabChangeListener(new TabSheet.SelectedTabChangeListener() {
 
 			/**

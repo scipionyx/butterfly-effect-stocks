@@ -104,9 +104,11 @@ public class PortfolioView extends AbstractView {
 	 */
 	private void addPortfolio(Portfolio portfolio) {
 
+		
 		PortfolioGrid grid = new PortfolioGrid(portfolio);
-
-		Tab tab = tabSheet.addTab(grid, portfolio.getName(), VaadinIcons.STOCK);
+		VerticalLayout layout = new VerticalLayout(grid);
+		
+		Tab tab = tabSheet.addTab(layout, portfolio.getName(), VaadinIcons.STOCK);
 		// portfolio.setPosition(tabSheet.getTabPosition(tab));
 		tab.setClosable(!portfolio.isDefaultPortfolio());
 

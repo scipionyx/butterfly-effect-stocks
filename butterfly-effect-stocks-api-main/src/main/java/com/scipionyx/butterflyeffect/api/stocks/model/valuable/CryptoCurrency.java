@@ -20,12 +20,4 @@ public class CryptoCurrency extends Valuable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 * @param symbol
-	 */
-	public CryptoCurrency(String symbol) {
-		super(symbol);
-	}
-
 }

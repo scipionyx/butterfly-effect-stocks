@@ -1,19 +1,29 @@
 package com.scipionyx.butterflyeffect.frontend.stocks.main.ui.view.research;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.scipionyx.butterflyeffect.api.stocks.model.research.Research;
 import com.scipionyx.butterflyeffect.frontend.core.ui.view.common.AbstractView;
+import com.scipionyx.butterflyeffect.frontend.stocks.main.services.ResearchClientService;
 import com.scipionyx.butterflyeffect.ui.view.MenuConfiguration;
 import com.scipionyx.butterflyeffect.ui.view.ViewConfiguration;
 import com.vaadin.annotations.Title;
+import com.vaadin.data.Binder;
+import com.vaadin.data.BinderValidationStatus;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 @UIScope
@@ -41,6 +51,9 @@ public class ResearchView extends AbstractView {
 
 	private ResearchTabSheet tabSheet;
 
+	@Autowired(required = true)
+	private ResearchClientService service;
+
 	/**
 	 * 
 	 */
@@ -50,7 +63,7 @@ public class ResearchView extends AbstractView {
 		addButton(ValoTheme.BUTTON_FRIENDLY, new Button("Add", event -> addNewResearch()));
 
 		tabSheet = new ResearchTabSheet();
-		tabSheet.build();
+		tabSheet.build(service);
 
 		workArea.addComponents(tabSheet);
 
@@ -61,7 +74,7 @@ public class ResearchView extends AbstractView {
 	 */
 	private void addNewResearch() {
 		Research research = new Research();
-		ResearchWindow window = new ResearchWindow(WindowType.NEW, research, tabSheet);
+		ResearchWindow window = new ResearchWindow(WindowType.NEW, research);
 		window.build();
 		getUI().addWindow(window);
 	}
@@ -71,6 +84,94 @@ public class ResearchView extends AbstractView {
 	 */
 	@Override
 	public void doEnter(ViewChangeEvent event) {
+
+	}
+
+	private class ResearchWindow extends Window {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		private Research research;
+
+		private Binder<Research> binder;
+
+		private WindowType type;
+
+		private String windowTitle;
+
+		/**
+		 * 
+		 * @param type
+		 * @param research
+		 */
+		public ResearchWindow(WindowType type, Research research) {
+			this.type = type;
+			this.research = research;
+		}
+
+		public void build() {
+			setClosable(true);
+			setWidth(320, Unit.PIXELS);
+			setModal(false);
+			setResizable(false);
+			center();
+			switch (type) {
+			case NEW:
+				windowTitle = "Add new Research";
+				break;
+			case EDIT:
+				windowTitle = "Edit Research";
+				break;
+			default:
+				break;
+			}
+			setCaption(windowTitle);
+
+			binder = new Binder<>();
+			binder.setBean(research);
+
+			TextField nameTF = new TextField("Name");
+			binder.forField(nameTF).asRequired("Research name is required").bind(Research::getName, Research::setName);
+			nameTF.focus();
+
+			TextArea descriptionTF = new TextArea("Description");
+			binder.forField(descriptionTF).bind(Research::getDescription, Research::setDescription);
+
+			TextField userTF = new TextField("User");
+			userTF.setReadOnly(true);
+			binder.forField(userTF).bind(Research::getUser, Research::setUser);
+
+			Button confirmBt = new Button("Confirm", event -> confirm());
+			confirmBt.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+
+			//
+			FormLayout formLayout = new FormLayout(nameTF, descriptionTF, userTF, confirmBt);
+			formLayout.setMargin(true);
+
+			//
+			setContent(formLayout);
+
+		}
+
+		/**
+		 * 
+		 */
+		private void confirm() {
+
+			BinderValidationStatus<Research> validate = binder.validate();
+			if (validate.isOk()) {
+				tabSheet.addTab(service.save(research));
+				close();
+				Notification.show(windowTitle, "Research successfully added", Type.TRAY_NOTIFICATION);
+			} else if (validate.hasErrors()) {
+				Notification.show(windowTitle, validate.getValidationErrors().get(0).getErrorMessage(),
+						Type.HUMANIZED_MESSAGE);
+			}
+
+		}
 
 	}
 

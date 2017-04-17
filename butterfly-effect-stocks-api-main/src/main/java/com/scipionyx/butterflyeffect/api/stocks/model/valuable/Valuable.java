@@ -2,7 +2,6 @@ package com.scipionyx.butterflyeffect.api.stocks.model.valuable;
 
 import java.io.Serializable;
 
-import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -23,8 +20,6 @@ import org.hibernate.validator.constraints.NotEmpty;
  *
  */
 @Entity
-@Table(name = "S_VALUABLE", uniqueConstraints = { @UniqueConstraint(columnNames = { "SYMBOL" }) })
-@Cacheable(value = true)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Valuable implements Serializable {
 
@@ -52,14 +47,6 @@ public abstract class Valuable implements Serializable {
 	@NotEmpty
 	@Column(name = "SYMBOL", length = 10)
 	private String symbol;
-
-	/**
-	 * 
-	 * @param symbol
-	 */
-	public Valuable(String symbol) {
-		setSymbol(symbol);
-	}
 
 	public Long getId() {
 		return id;
