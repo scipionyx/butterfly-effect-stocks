@@ -21,7 +21,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Valuable implements Serializable {
+public class Valuable implements Serializable {
 
 	/**
 	 * 

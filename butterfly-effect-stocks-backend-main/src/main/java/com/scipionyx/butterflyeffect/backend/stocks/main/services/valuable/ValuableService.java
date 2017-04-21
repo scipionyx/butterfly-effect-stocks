@@ -3,8 +3,8 @@ package com.scipionyx.butterflyeffect.backend.stocks.main.services.valuable;
 import org.springframework.stereotype.Component;
 
 import com.scipionyx.butterflyeffect.api.infrastructure.services.server.data.AbstractJpaAccessService;
-import com.scipionyx.butterflyeffect.api.stocks.model.valuable.CryptoCurrency;
-import com.scipionyx.butterflyeffect.api.stocks.services.valuable.data.ICryptoCurrencyRepository;
+import com.scipionyx.butterflyeffect.api.stocks.model.valuable.Valuable;
+import com.scipionyx.butterflyeffect.api.stocks.services.valuable.IValuableRepository;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.scipionyx.butterflyeffect.api.stocks.services.valuable.data.ICryptoCu
  *
  */
 @Component
-public class CryptoCurrencyService extends AbstractJpaAccessService<CryptoCurrency, ICryptoCurrencyRepository> {
+public class ValuableService extends AbstractJpaAccessService<Valuable, IValuableRepository> {
 
 	/**
 	 * 

@@ -7,6 +7,8 @@ import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,7 +41,7 @@ public class Research implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column(name = "ID")
-	private String id;
+	private Long id;
 
 	@Column(name = "NAME", length = 500)
 	@NotNull
@@ -53,16 +55,23 @@ public class Research implements Serializable {
 	private List<Note> notes;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	private Valuable valuable;
+	private Valuable target;
 
 	@Column(name = "USER", length = 250)
 	private String user;
 
-	public String getId() {
+	@Column(name = "CHART_PERIOD", length = 20)
+	@Enumerated(EnumType.STRING)
+	private ChartPeriod chartPeriod;
+
+	@Column(name = "CHART_NUMBER_OF_DAYS")
+	private Double chartNumberOfDays;
+
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -98,12 +107,28 @@ public class Research implements Serializable {
 		this.user = user;
 	}
 
-	public Valuable getValuable() {
-		return valuable;
+	public Valuable getTarget() {
+		return target;
 	}
 
-	public void setValuable(Valuable valuable) {
-		this.valuable = valuable;
+	public void setTarget(Valuable target) {
+		this.target = target;
+	}
+
+	public ChartPeriod getChartPeriod() {
+		return chartPeriod;
+	}
+
+	public void setChartPeriod(ChartPeriod chartPeriod) {
+		this.chartPeriod = chartPeriod;
+	}
+
+	public Double getChartNumberOfDays() {
+		return chartNumberOfDays;
+	}
+
+	public void setChartNumberOfDays(Double chartNumberOfDays) {
+		this.chartNumberOfDays = chartNumberOfDays;
 	}
 
 }

@@ -10,10 +10,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.client.RestClientException;
 
+import com.scipionyx.butterflyeffect.api.infrastructure.services.client.Operation;
+import com.scipionyx.butterflyeffect.api.infrastructure.services.client.Value;
 import com.scipionyx.butterflyeffect.api.stocks.model.market.Exchange;
 import com.scipionyx.butterflyeffect.api.stocks.model.portfolio.Portfolio;
 import com.scipionyx.butterflyeffect.api.stocks.model.portfolio.Position;
@@ -104,10 +104,9 @@ public class PortfolioView extends AbstractView {
 	 */
 	private void addPortfolio(Portfolio portfolio) {
 
-		
 		PortfolioGrid grid = new PortfolioGrid(portfolio);
 		VerticalLayout layout = new VerticalLayout(grid);
-		
+
 		Tab tab = tabSheet.addTab(layout, portfolio.getName(), VaadinIcons.STOCK);
 		// portfolio.setPosition(tabSheet.getTabPosition(tab));
 		tab.setClosable(!portfolio.isDefaultPortfolio());
@@ -182,8 +181,6 @@ public class PortfolioView extends AbstractView {
 	 */
 	private void addPortfolio() {
 		try {
-			String username = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-					.getUsername();
 			NewPortfolioWindow window = new NewPortfolioWindow(
 					new Portfolio(username, Boolean.FALSE, tabSheet.getComponentCount()));
 			window.build();
@@ -200,11 +197,8 @@ public class PortfolioView extends AbstractView {
 	 */
 	private List<Portfolio> loadPortfolios() {
 
-		//
-		String username = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-
-		Map<String, Object> map = new HashMap<>();
-		map.put("user", username);
+		Map<String, Value> map = new HashMap<>();
+		map.put("user", new Value(Operation.EQUALS, username));
 
 		List<Portfolio> portfolios = null;
 
@@ -369,8 +363,8 @@ public class PortfolioView extends AbstractView {
 		private void exchangeChange(ComboBox<Exchange> exchangeCB, ComboBox<Stock> stockCB) throws Exception {
 			if (exchangeCB.getSelectedItem().isPresent()) {
 				Exchange exchange = exchangeCB.getSelectedItem().get();
-				Map<String, Object> map = new HashMap<>();
-				map.put("exchange", exchange);
+				Map<String, Value> map = new HashMap<>();
+				map.put("exchange", new Value(Operation.EQUALS, exchange));
 				//
 				List<Stock> stocks = stockService.findAllByOrderBy(map, "symbol");
 				stockCB.setItems(stocks);

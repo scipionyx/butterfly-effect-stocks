@@ -30,16 +30,16 @@ public class Note implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column(name = "ID")
-	private String id;
+	private Long id;
 
 	@Column(name = "NOTE_TEXT", length = 1000)
 	private String text;
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
