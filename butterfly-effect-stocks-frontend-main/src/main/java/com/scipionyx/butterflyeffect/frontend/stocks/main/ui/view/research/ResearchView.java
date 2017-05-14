@@ -121,7 +121,7 @@ public class ResearchView extends AbstractView {
 	 */
 	@Override
 	public void doEnter(ViewChangeEvent event) {
-
+		tabSheet.refresh();
 	}
 
 	private class ResearchWindow extends Window {
@@ -223,6 +223,9 @@ public class ResearchView extends AbstractView {
 
 			BinderValidationStatus<Research> validate = binder.validate();
 			if (validate.isOk()) {
+				research.setUser(username);
+				research.setNotes(new ArrayList<>());
+				research.setChartPeriod(ChartPeriod.FIVE_DAYS);
 				tabSheet.addTab(researchService.save(research));
 				close();
 				Notification.show(windowTitle, "Research successfully added", Type.TRAY_NOTIFICATION);
@@ -292,6 +295,10 @@ public class ResearchView extends AbstractView {
 			setCloseHandler(this::closeHandler);
 		}
 
+		public void refresh() {
+			((ResearchTabLayout) this.getSelectedTab()).enter();
+		}
+
 		/**
 		 * 
 		 * @param sheet
@@ -355,6 +362,10 @@ public class ResearchView extends AbstractView {
 				this.research = research;
 			}
 
+			public void enter() {
+				
+			}
+
 			public Research getResearch() {
 				return research;
 			}
@@ -399,14 +410,16 @@ public class ResearchView extends AbstractView {
 				setCaption("Details");
 
 				TextField nameTF = new TextField("Name");
+				nameTF.setSizeFull();
 				binder.forField(nameTF).asRequired("Research name is required").bind(Research::getName,
 						Research::setName);
 
 				TextArea descriptionTF = new TextArea("Description");
+				descriptionTF.setSizeFull();
 				binder.forField(descriptionTF).bind(Research::getDescription, Research::setDescription);
 
-				List<Valuable> findAll = valuableClientService.findAll();
-				ComboBox<Valuable> valuableCB = new ComboBox<>("Valuable", findAll);
+				ComboBox<Valuable> valuableCB = new ComboBox<>("Valuable", valuableClientService.findAll());
+				valuableCB.setSizeFull();
 				valuableCB.setRequiredIndicatorVisible(true);
 				valuableCB.setItemCaptionGenerator(new ItemCaptionGenerator<Valuable>() {
 
@@ -424,6 +437,7 @@ public class ResearchView extends AbstractView {
 
 				TextField userTF = new TextField("User");
 				userTF.setReadOnly(true);
+				userTF.setSizeFull();
 				binder.forField(userTF).bind(Research::getUser, Research::setUser);
 
 				FormLayout formLayout = new FormLayout(nameTF, descriptionTF, valuableCB, userTF);

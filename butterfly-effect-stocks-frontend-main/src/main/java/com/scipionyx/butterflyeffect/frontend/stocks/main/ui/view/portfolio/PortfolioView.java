@@ -166,7 +166,7 @@ public class PortfolioView extends AbstractView {
 	 * @param a
 	 */
 	private void closeTab(TabSheet sheet, Component tabContent) {
-		PortfolioGrid portfolioGrid = (PortfolioGrid) tabContent;
+		PortfolioGrid portfolioGrid = (PortfolioGrid) ((VerticalLayout) tabContent).getComponent(0);
 		portfolioClientService.delete(portfolioGrid.getPortfolio().getId());
 		Notification.show("Remove Portfolio",
 				"Portfolio [" + portfolioGrid.getPortfolio().getName() + "] successfully removed",
