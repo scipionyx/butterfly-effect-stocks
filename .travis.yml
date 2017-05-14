@@ -7,5 +7,5 @@ install: true
 
 script:
   - sudo apt-get update && sudo apt-get install oracle-java8-installer
-  - cd butterfly-effect/
+  - cd butterfly-effect-stocks/
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
